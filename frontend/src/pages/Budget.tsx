@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
+import "./Budget.css";
 
 // Converts month key "YYYY-MM" to e.g. "January 2025"
 const formatMonth = (key: string): string => {
@@ -97,12 +98,6 @@ export default function Budget() {
                           value={newValue}
                           onChange={(e) => setNewValue(e.target.value)}
                           placeholder={`${currency}...`}
-                          style={{
-                            width: "80px",
-                            padding: "0.2rem",
-                            borderRadius: "6px",
-                            border: "1px solid #ccc",
-                          }}
                         />
                       ) : (
                         formatMoney(b.budget)
@@ -118,7 +113,7 @@ export default function Budget() {
                             background: "#4caf50",
                             color: "white",
                             borderRadius: "20px",
-                            padding: "0.3rem 0.8rem",
+                            padding: "0.4rem 1rem",
                           }}
                         >
                           Save
@@ -130,7 +125,7 @@ export default function Budget() {
                           style={{
                             background: "#f3f3f3",
                             borderRadius: "20px",
-                            padding: "0.3rem 0.8rem",
+                            padding: "0.4rem 1rem",
                             color: "black",
                           }}
                         >
@@ -144,37 +139,14 @@ export default function Budget() {
             </table>
 
             {/* Add new category section */}
-            <div
-              style={{
-                marginTop: "1rem",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
+            <div>
               <input
                 type="text"
                 value={newCat}
                 onChange={(e) => setNewCat(e.target.value)}
                 placeholder="Add new category..."
-                style={{
-                  flex: 1,
-                  padding: "0.5rem",
-                  borderRadius: "8px",
-                  border: "1px solid #ccc",
-                }}
               />
-              <button
-                onClick={handleAddCategory}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "8px",
-                  border: "none",
-                  background: "#4caf50",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
+              <button onClick={handleAddCategory}>
                 Add
               </button>
             </div>
@@ -183,25 +155,15 @@ export default function Budget() {
       </AnimatePresence>
 
       {/* Month Navigation */}
-      <div
-        className="month-nav"
-        style={{
-          marginTop: "1.5rem",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
+      <div className="month-nav">
         <div>
-          <button onClick={prevMonth} style={navButtonStyle}>
+          <button onClick={prevMonth}>
             ← Previous
           </button>
-          <span style={{ fontWeight: 500, opacity: 0.7 }}>
+          <span>
             📅 Viewing: {formatMonth(monthKey)}
           </span>
-          <button onClick={nextMonth} style={navButtonStyle}>
+          <button onClick={nextMonth}>
             Next →
           </button>
         </div>
@@ -215,7 +177,7 @@ export default function Budget() {
               color: "white",
               border: "none",
               borderRadius: "20px",
-              padding: "0.4rem 1rem",
+              padding: "0.7rem 1.5rem",
               cursor: "pointer",
               fontSize: "0.95rem",
             }}
@@ -237,12 +199,3 @@ export default function Budget() {
     </div>
   );
 }
-
-const navButtonStyle: React.CSSProperties = {
-  margin: "0 0.8rem",
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: "1rem",
-  color: "#666",
-};

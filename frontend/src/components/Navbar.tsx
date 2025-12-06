@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { User } from "lucide-react";
-import "../App.css";
+import "./Navbar.css";
 
 const Navbar: React.FC = () => {
   // Controls if profile menu is visible
@@ -16,8 +16,6 @@ const Navbar: React.FC = () => {
   const handleThemeToggle = () => {
     const next = theme === "light" ? "dark" : "light";
     setTheme(next);
-    setOpen(false);
-
     localStorage.setItem("theme", next);
     window.dispatchEvent(new Event("storage"));
   };
@@ -35,36 +33,69 @@ const Navbar: React.FC = () => {
     }
   };
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.nav-right')) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [open]);
+
   return (
     <div className="navbar">
-      {/* Home Icon */}
+      {/* Left Side - Home */}
       <Link to="/" className="nav-home">
-        🏠
+        🏠 Home
       </Link>
 
-      {/* Profile Section */}
+      {/* Right Side - Menu + Profile */}
       <div className="nav-right">
-        <div className="profile-icon" onClick={() => setOpen(!open)}>
-          <User size={30} />
+        {/* Desktop Menu Links */}
+        <div className="nav-menu">
+          <Link to="/budget">Budget</Link>
+          <Link to="/profile">Profile</Link>
+          <Link to="/contact">Contact</Link>
         </div>
 
+        {/* Divider */}
+        <div className="nav-divider"></div>
+
+        {/* Theme Toggle */}
+        <button className="theme-toggle" onClick={handleThemeToggle}>
+          {theme === "light" ? "🌙" : "☀️"}
+        </button>
+
+        {/* Profile Dropdown */}
+        <div className="profile-icon" onClick={(e) => {
+          e.stopPropagation();
+          setOpen(!open);
+        }}>
+          <User />
+        </div>
+
+        {/* Dropdown Menu */}
         {open && (
           <div className="profile-menu">
-            <Link to="/profile" onClick={() => setOpen(false)}>
-              Profile
-            </Link>
-            <Link to="/budget" onClick={() => setOpen(false)}>
+            {/* Mobile-only links */}
+            <Link to="/budget" onClick={() => setOpen(false)} className="mobile-only">
               Budget
             </Link>
-            <Link to="/contact" onClick={() => setOpen(false)}>
+            <Link to="/profile" onClick={() => setOpen(false)} className="mobile-only">
+              Profile
+            </Link>
+            <Link to="/contact" onClick={() => setOpen(false)} className="mobile-only">
               Contact
             </Link>
 
-            <hr />
-
-            <button onClick={handleThemeToggle}>
-              {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
-            </button>
+            <hr className="mobile-only" />
 
             <button onClick={handleReset} className="danger">
               🗑️ Reset All Data
