@@ -8,8 +8,8 @@ import "./Budget.css";
 
 // Converts month key "YYYY-MM" to e.g. "January 2025"
 const formatMonth = (key: string): string => {
-  const [year, month] = key.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1);
+  const [year, month] = key.split("-") as [string, string];
+  const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1);
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };
 

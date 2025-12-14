@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+<<<<<<< HEAD
 import { User } from "lucide-react";
 import "./Navbar.css";
+=======
+import { Menu } from "lucide-react";
+import NavMenu from "./NavMenu";
+import "../App.css";
+>>>>>>> 4b005a1 (fixed vite ebtry point)
 
 const Navbar: React.FC = () => {
   // Controls if profile menu is visible
@@ -58,6 +64,7 @@ const Navbar: React.FC = () => {
 
       {/* Right Side - Menu + Profile */}
       <div className="nav-right">
+<<<<<<< HEAD
         {/* Desktop Menu Links */}
         <div className="nav-menu">
           <Link to="/budget">Budget</Link>
@@ -104,9 +111,21 @@ const Navbar: React.FC = () => {
             <p className="version">v1.0.0</p>
           </div>
         )}
+=======
+        <div className="profile-icon" onClick={() => setOpen(!open)}>
+          <Menu size={30} />
+        </div>
+        <NavMenu
+          open={open}
+          onClose={() => setOpen(false)}
+          theme={theme}
+          onToggleTheme={handleThemeToggle}
+          onReset={handleReset}
+        />
+>>>>>>> 4b005a1 (fixed vite ebtry point)
       </div>
     </div>
   );
-};
+}
 
 export default Navbar;
