@@ -13,19 +13,6 @@ const formatMonth = (key: string): string => {
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };
 
-<<<<<<< HEAD
-=======
-const navButtonStyle: React.CSSProperties = {
-  margin: "0 0.8rem",
-  border: "1px solid #ddd",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: "1rem",
-  color: "#666",
-  padding: "0.4rem 1rem",
-};
-
->>>>>>> 4b005a1 (fixed vite ebtry point)
 const Home: React.FC = () => {
   // Global state from context
    const {
@@ -97,12 +84,12 @@ const Home: React.FC = () => {
       {/* Month Navigation */}
       <div className="month-nav">
         <div>
-          <button onClick={prevMonth}>
-            ← Previous
-          </button>
           <span>
             📅 Viewing: {formatMonth(monthKey)}
           </span>
+          <button onClick={prevMonth}>
+            ← Previous
+          </button>
           <button onClick={nextMonth}>
             Next →
           </button>
