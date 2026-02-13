@@ -63,12 +63,7 @@ const Home: React.FC = () => {
           <div className="summary">
             {/* Total budget */}
             <div>
-              💰 <span>Total Budget: {formatMoney(totalBudget)}</span>
-            </div>
-
-            {/* Total spent */}
-            <div>
-              💸 <span>Spent: {formatMoney(totalSpent)}</span>
+              💰 <span> Spent / Budget: {formatMoney(totalSpent)} / {formatMoney(totalBudget)}</span>
             </div>
 
             {/* Remaining */}
@@ -76,6 +71,16 @@ const Home: React.FC = () => {
               🌍 <span>Remaining: {formatMoney(remaining)}</span>
             </div>
           </div>
+
+          <button
+            type="button"
+            className="addbtn"
+            onClick={() => navigate("/expense")}
+          >
+            Add Expense
+          </button>
+
+          
 
           <Chart />
         </motion.div>
@@ -113,7 +118,7 @@ const Home: React.FC = () => {
         )}
       </div>
 
-      {/* Navigation buttons */}
+      {/* Navigation buttons 
       <div className="bottom-actions">
         <button
           type="button"
@@ -136,7 +141,7 @@ const Home: React.FC = () => {
         >
           Budget
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
