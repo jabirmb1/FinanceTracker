@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { User } from "lucide-react";
 import "./Navbar.css";
+import { House } from "lucide-react"
 
 const Navbar: React.FC = () => {
   // Controls if profile menu is visible
@@ -53,14 +54,16 @@ const Navbar: React.FC = () => {
     <div className="navbar">
       {/* Left Side - Home */}
       <Link to="/" className="nav-home">
-        🏠 Home
+        <House />
       </Link>
 
       {/* Right Side - Menu + Profile */}
       <div className="nav-right">
         {/* Desktop Menu Links */}
         <div className="nav-menu">
+          <Link to="/expense">Expenses</Link>
           <Link to="/budget">Budget</Link>
+          <Link to="/transactions">Transactions</Link>
           <Link to="/profile">Profile</Link>
           <Link to="/contact">Contact</Link>
         </div>
@@ -85,8 +88,14 @@ const Navbar: React.FC = () => {
         {open && (
           <div className="profile-menu">
             {/* Mobile-only links */}
+            <Link to="/expense" onClick={() => setOpen(false)} className="mobile-only">
+              Expenses
+            </Link>
             <Link to="/budget" onClick={() => setOpen(false)} className="mobile-only">
               Budget
+            </Link>
+            <Link to="/transactions" onClick={() => setOpen(false)} className="mobile-only">
+              Transactions
             </Link>
             <Link to="/profile" onClick={() => setOpen(false)} className="mobile-only">
               Profile
@@ -107,6 +116,6 @@ const Navbar: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Navbar;

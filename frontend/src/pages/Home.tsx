@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import Chart from "../components/BarChart";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
@@ -26,6 +26,8 @@ const Home: React.FC = () => {
     formatMoney,
   } = useContext<AppContextType>(AppContext);
 
+  const navigate = useNavigate();
+
   // Precompute totals to avoid recalculation
   const totalBudget = useMemo<number>(
     () => budgets.reduce((sum, b) => sum + b.budget, 0),
@@ -49,7 +51,6 @@ const Home: React.FC = () => {
   return (
     <div className="page">
       <Navbar />
-      <h1 className="title">My finance tracker</h1>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -62,12 +63,7 @@ const Home: React.FC = () => {
           <div className="summary">
             {/* Total budget */}
             <div>
-              💰 <span>Total Budget: {formatMoney(totalBudget)}</span>
-            </div>
-
-            {/* Total spent */}
-            <div>
-              💸 <span>Spent: {formatMoney(totalSpent)}</span>
+              💰 <span> Spent / Budget: {formatMoney(totalSpent)} / {formatMoney(totalBudget)}</span>
             </div>
 
             {/* Remaining */}
@@ -76,6 +72,16 @@ const Home: React.FC = () => {
             </div>
           </div>
 
+          <button
+            type="button"
+            className="addbtn"
+            onClick={() => navigate("/expense")}
+          >
+            Add Expense
+          </button>
+
+          
+
           <Chart />
         </motion.div>
       </AnimatePresence>
@@ -83,12 +89,12 @@ const Home: React.FC = () => {
       {/* Month Navigation */}
       <div className="month-nav">
         <div>
-          <button onClick={prevMonth}>
-            ← Previous
-          </button>
           <span>
             📅 Viewing: {formatMonth(monthKey)}
           </span>
+          <button onClick={prevMonth}>
+            ← Previous
+          </button>
           <button onClick={nextMonth}>
             Next →
           </button>
@@ -112,15 +118,30 @@ const Home: React.FC = () => {
         )}
       </div>
 
-      {/* Navigation buttons */}
+      {/* Navigation buttons 
       <div className="bottom-actions">
-        <Link to="/expense" className="btn">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/expense")}
+        >
           Expense
-        </Link>
-        <Link to="/transactions" className="btn">
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/transactions")}
+        >
           Transactions
-        </Link>
-      </div>
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/budget")}
+        >
+          Budget
+        </button>
+      </div> */}
     </div>
   );
 };

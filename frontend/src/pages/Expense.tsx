@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, FormEvent } from "react";
+ import React, { useState, useContext, useMemo, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { AppContext } from "../context/AppContext";
@@ -58,9 +58,8 @@ const Expense: React.FC = () => {
   return (
     <div className="page">
       <Navbar />
-      <h1 className="title">Expense</h1>
-
-      <div className="remaining">
+      <div className="remaining"
+      style={fontSizeStyle}>
         🪙 Remaining budget:{" "}
         <strong style={{ color: remaining < 0 ? "red" : "green" }}>
           {currency}
@@ -147,15 +146,22 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "8px",
   border: "1px solid #ccc",
   width: "100%",
+  display: "block",      /* make it a block-level element */
+  margin: "1rem auto"
 };
 
+const fontSizeStyle: React.CSSProperties = {
+  fontSize: "1.1rem",
+};
 const buttonStyle: React.CSSProperties = {
   padding: "0.5rem 1rem",
   borderRadius: "8px",
   border: "none",
-  background: "#4caf50",
+  background: "#88d0f1ff",
   color: "white",
   cursor: "pointer",
+  display: "block",      /* make it a block-level element */
+  margin: "1rem auto"
 };
 
 const addCategoryStyle: React.CSSProperties = {
