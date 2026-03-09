@@ -1,12 +1,9 @@
 import React, { useContext, useState } from "react";
-import Navbar from "../components/Navbar";
-import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
 import "./Budget.css";
 
-// Converts month key "YYYY-MM" to e.g. "January 2025"
 const formatMonth = (key: string): string => {
   const [year, month] = key.split("-") as [string, string];
   const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1);
@@ -27,22 +24,17 @@ export default function Budget() {
     addCategory,
   } = useContext<AppContextType>(AppContext);
 
-  // Tracks which category is being edited
   const [editing, setEditing] = useState<string | null>(null);
-  // Holds temporary budget value while editing
   const [newValue, setNewValue] = useState<number | string>("");
-  // Input for a new category name
   const [newCat, setNewCat] = useState<string>("");
 
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
-  // Start editing specific category
   const handleEdit = (category: string, currentValue: number) => {
     setEditing(category);
     setNewValue(currentValue);
   };
 
-  // Save edited budget
   const handleSave = (category: string) => {
     const parsedValue = parseFloat(newValue.toString());
     if (isNaN(parsedValue)) return alert("Invalid budget value.");
@@ -50,14 +42,12 @@ export default function Budget() {
     setEditing(null);
   };
 
-  // Add a brand new category
   const handleAddCategory = () => {
     if (!newCat.trim()) return alert("Category name cannot be empty.");
     addCategory(newCat);
     setNewCat("");
   };
 
-  // Merge budgets with categories so that new ones always show up
   const allBudgets = categories.map((cat) => {
     const existing = budgets.find((b) => b.category === cat);
     return existing || { category: cat, budget: 0 };
@@ -65,10 +55,11 @@ export default function Budget() {
 
   return (
     <div className="page">
-      <Navbar />
+      <p style={{ textAlign: "center", fontSize: "0.68rem", color: "#aaa", fontWeight: 600, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+        {formatMonth(monthKey)}
+      </p>
       <h1 className="title">Budget</h1>
 
-      {/* Smooth month transitions using Framer Motion */}
       <AnimatePresence mode="wait">
         <motion.div
           key={monthKey}
@@ -77,125 +68,69 @@ export default function Budget() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="budget-table">
-            <h3>🧾 This month</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Category</th>
-                  <th>Budget ({currency})</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {allBudgets.map((b) => (
-                  <tr key={b.category}>
-                    <td>{b.category}</td>
-                    <td>
-                      {editing === b.category ? (
-                        <input
-                          type="number"
-                          value={newValue}
-                          onChange={(e) => setNewValue(e.target.value)}
-                          placeholder={`${currency}...`}
-                        />
-                      ) : (
-                        formatMoney(b.budget)
-                      )}
-                    </td>
-
-                    <td>
-                      {editing === b.category ? (
-                        <button
-                          onClick={() => handleSave(b.category)}
-                          className="btn"
-                          style={{
-                            background: "#4caf50",
-                            color: "white",
-                            borderRadius: "20px",
-                            padding: "0.4rem 1rem",
-                          }}
-                        >
-                          Save
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => handleEdit(b.category, b.budget)}
-                          className="btn"
-                          style={{
-                            background: "#f3f3f3",
-                            borderRadius: "20px",
-                            padding: "0.4rem 1rem",
-                            color: "black",
-                          }}
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Add new category section */}
-            <div>
-              <input
-                type="text"
-                value={newCat}
-                onChange={(e) => setNewCat(e.target.value)}
-                placeholder="Add new category..."
-              />
-              <button onClick={handleAddCategory}>
-                Add
-              </button>
-            </div>
+          {/* Budget rows */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+            {allBudgets.map((b) => (
+              <div key={b.category} style={{ background: "#fff", borderRadius: 12, padding: "10px 12px", border: "1px solid #f0eeff", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(108,99,255,0.05)" }}>
+                <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#1a1a2e" }}>{b.category}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {editing === b.category ? (
+                    <>
+                      <input
+                        type="number"
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        placeholder={`${currency}...`}
+                        style={{ width: 80, padding: "5px 8px", borderRadius: 8, border: "1.5px solid #6c63ff", fontSize: "0.82rem", fontFamily: "inherit", outline: "none" }}
+                      />
+                      <button onClick={() => handleSave(b.category)} style={{ background: "#10b981", color: "white", border: "none", borderRadius: 99, padding: "5px 12px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
+                        Save
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span style={{ fontSize: "0.88rem", fontWeight: 800, color: "#1a1a2e" }}>{formatMoney(b.budget)}</span>
+                      <button onClick={() => handleEdit(b.category, b.budget)} style={{ background: "#f8f7ff", color: "#6c63ff", border: "1.5px solid #ede9fe", borderRadius: 99, padding: "4px 12px", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }}>
+                        Edit
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
+
+          {/* Add new category */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <input
+              type="text"
+              value={newCat}
+              onChange={(e) => setNewCat(e.target.value)}
+              placeholder="Add new category..."
+              style={{ flex: 1, padding: "9px 12px", borderRadius: 10, border: "1.5px solid #ede9fe", fontSize: "0.85rem", fontFamily: "inherit", outline: "none", background: "#faf9ff", color: "#1a1a2e" }}
+            />
+            <button onClick={handleAddCategory} className="btn primary" style={{ whiteSpace: "nowrap" }}>
+              + Add
+            </button>
+          </div>
+
         </motion.div>
       </AnimatePresence>
 
-      {/* Month Navigation */}
+      {/* Month nav */}
       <div className="month-nav">
-        <div>
-          <button onClick={prevMonth}>
-            ← Previous
-          </button>
-          <span>
-            📅 Viewing: {formatMonth(monthKey)}
-          </span>
-          <button onClick={nextMonth}>
-            Next →
-          </button>
-        </div>
+        <button onClick={prevMonth}>← Prev</button>
+        <span>{formatMonth(monthKey)}</span>
+        <button onClick={nextMonth}>Next →</button>
+      </div>
 
-        {/* Shortcut to return to current month */}
-        {monthKey !== currentMonthKey && (
-          <button
-            onClick={goToCurrentMonth}
-            style={{
-              background: "#000",
-              color: "white",
-              border: "none",
-              borderRadius: "20px",
-              padding: "0.7rem 1.5rem",
-              cursor: "pointer",
-              fontSize: "0.95rem",
-            }}
-          >
+      {monthKey !== currentMonthKey && (
+        <div style={{ textAlign: "center", marginTop: 8 }}>
+          <button onClick={goToCurrentMonth} style={{ background: "#6c63ff", color: "white", border: "none", borderRadius: 99, padding: "5px 14px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
             Jump to This Month
           </button>
-        )}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="bottom-actions">
-        <Link to="/expense" className="btn no-hover">
-          Expense
-        </Link>
-        <Link to="/transactions" className="btn no-hover">
-          Transactions
-        </Link>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
