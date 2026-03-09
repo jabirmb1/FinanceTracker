@@ -1,20 +1,19 @@
-/* Navbar Container - Floating Popup Style */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.9rem 1.8rem;
+  padding: 0.9rem 1.2rem;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 18px;
-  position: relative; /* Changed from fixed */
-  margin: 16px auto; /* Changed from top/left positioning */
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  width: auto;
   z-index: 100;
-  transition: all 0.3s ease;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(0, 0, 0, 0.08);
-  max-width: 650px;
-  width: calc(100% - 40px);
 }
 
 .navbar:hover {

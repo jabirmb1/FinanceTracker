@@ -50,9 +50,12 @@ const Profile: React.FC = () => {
 
   const [name, setName] = useState<string>(localStorage.getItem("userName") || "");
   const [goal, setGoal] = useState<string>(localStorage.getItem("goal") || "");
-  const [isDark, setIsDark] = useState<boolean>(
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    const stored = localStorage.getItem("theme");
+    if (stored === "dark") return true;
+    if (stored === "light") return false;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+});
 
   const location = useLocation();
 
@@ -181,7 +184,7 @@ const Profile: React.FC = () => {
             transition: "background 0.4s ease, color 0.4s ease",
           }}
         >
-          {name && name.length > 0 ? name[0].toUpperCase() : "👤"}
+          {name && name.length > 0 ? name.charAt(0).toUpperCase() : "👤"}
         </div>
         <div>
           <h2 style={{ color: colors.textMain }}>{name || "Guest"}</h2>
