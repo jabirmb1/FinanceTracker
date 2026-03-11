@@ -13,5 +13,39 @@
     "48": "icon48.png",
     "128": "logo512.png"
   },
-  "permissions": ["storage"]
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://*.asos.com/*",
+    "*://*.amazon.co.uk/*",
+    "*://*.amazon.com/*",
+    "*://*.ebay.co.uk/*",
+    "*://*.ebay.com/*",
+    "*://*.zara.com/*",
+    "*://*.nike.com/*",
+    "*://*.tesco.com/*",
+    "*://*.sainsburys.co.uk/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.asos.com/*",
+        "*://*.amazon.co.uk/*",
+        "*://*.amazon.com/*",
+        "*://*.ebay.co.uk/*",
+        "*://*.ebay.com/*",
+        "*://*.zara.com/*",
+        "*://*.nike.com/*",
+        "*://*.tesco.com/*",
+        "*://*.sainsburys.co.uk/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["overlay.html", "overlay.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
