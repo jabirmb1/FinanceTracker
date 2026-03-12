@@ -49,6 +49,7 @@ function guessCategory(hostname) {
 // ── STATE ─────────────────────────────────────────────────────────
 
 let state = {
+  accent: "#6c63ff",
   bannerVisible: false,
   bannerAnimIn: false,
   cartTotal: 0,
@@ -64,6 +65,21 @@ let state = {
   impulseTimer: null,
   impulseTotal: 0,
 };
+
+// ── ACCENT SYNC ──────────────────────────────────────────────────
+
+// Request accent from content.js (which reads chrome.storage.local)
+window.parent.postMessage({ type: "FT_REQUEST_ACCENT" }, "*");
+
+window.addEventListener("message", (e) => {
+  if (e.data?.type === "FT_ACCENT_RESPONSE") {
+    const newAccent = e.data.accentHex || "#6c63ff";
+    if (newAccent !== state.accent) {
+      state.accent = newAccent;
+      render(); // re-render all overlay elements with new accent
+    }
+  }
+});
 
 // ── RENDER ────────────────────────────────────────────────────────
 
@@ -143,7 +159,7 @@ function renderWidget() {
   const wrap = el("div", { style: "position:fixed;bottom:80px;right:16px;pointer-events:all;z-index:2147483647;" });
 
   if (state.widgetCollapsed) {
-    const btn = el("button", { style: "width:44px;height:44px;border-radius:50%;background:#1e3a5f;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 14px rgba(30,58,95,0.4);" });
+    const btn = el("button", { style: `width:44px;height:44px;border-radius:50%;background:${state.accent};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 14px ${state.accent}66;` });
     btn.textContent = "💰";
     btn.title = "Finance Tracker";
     btn.onclick = () => { state.widgetCollapsed = false; render(); };
@@ -153,7 +169,7 @@ function renderWidget() {
 
   const card = el("div", { style: "background:#fff;border-radius:14px;border:1px solid #e8ecf0;width:220px;box-shadow:0 8px 30px rgba(30,58,95,0.15);overflow:hidden;font-family:'Segoe UI',-apple-system,sans-serif;" });
 
-  const header = el("div", { style: "background:#1e3a5f;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;" });
+  const header = el("div", { style: `background:${state.accent};padding:10px 12px;display:flex;justify-content:space-between;align-items:center;` });
   const headerLeft = el("div", { style: "display:flex;align-items:center;gap:6px;" });
   const headerIcon = el("span", { style: "font-size:0.85rem;" });
   headerIcon.textContent = "💰";
@@ -173,7 +189,7 @@ function renderWidget() {
     label.textContent = "Shopping detected";
     const sub = el("p", { style: "margin:0 0 10px;font-size:0.75rem;color:#333;font-weight:600;" });
     sub.textContent = "Can you afford this?";
-    const checkBtn = el("button", { style: "width:100%;background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:9px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;" });
+    const checkBtn = el("button", { style: `width:100%;background:${state.accent};color:#fff;border:none;border-radius:10px;padding:9px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;` });
     checkBtn.textContent = "Check my budget";
     checkBtn.onclick = () => {
       state.widgetVerdict = "checking";
@@ -198,7 +214,7 @@ function renderWidget() {
     const loadWrap = el("div", { style: "text-align:center;padding:8px 0;" });
     const dots = el("div", { style: "display:flex;gap:4px;justify-content:center;margin-bottom:6px;" });
     [0,1,2].forEach(i => {
-      const d = el("div", { style: `width:6px;height:6px;border-radius:50%;background:#1e3a5f;animation:ftpulse 0.8s ${i*0.2}s infinite;` });
+      const d = el("div", { style: `width:6px;height:6px;border-radius:50%;background:${state.accent};animation:ftpulse 0.8s ${i*0.2}s infinite;` });
       dots.appendChild(d);
     });
     if (!document.getElementById("ft-keyframes")) {
@@ -299,7 +315,7 @@ function renderImpulseModal() {
     title.textContent = "Nice — you resisted!";
     const sub = el("p", { style: "margin:0 0 14px;font-size:0.7rem;color:#8a96a3;text-align:center;" });
     sub.textContent = `${state.currency}${state.impulseTotal.toFixed(2)} saved.`;
-    const closeBtn = el("button", { style: "width:100%;background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:9px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;" });
+    const closeBtn = el("button", { style: `width:100%;background:${state.accent};color:#fff;border:none;border-radius:10px;padding:9px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;` });
     closeBtn.textContent = "Close";
     closeBtn.onclick = () => { state.impulsePhase = "idle"; render(); };
     modal.append(emoji, title, sub, closeBtn);
