@@ -13,39 +13,48 @@
     "48": "icon48.png",
     "128": "logo512.png"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage"
+  ],
   "host_permissions": [
-    "*://*.asos.com/*",
-    "*://*.amazon.co.uk/*",
-    "*://*.amazon.com/*",
-    "*://*.ebay.co.uk/*",
-    "*://*.ebay.com/*",
-    "*://*.zara.com/*",
-    "*://*.nike.com/*",
-    "*://*.tesco.com/*",
-    "*://*.sainsburys.co.uk/*"
+    "https://www.asos.com/*",
+    "https://www.amazon.co.uk/*",
+    "https://www.amazon.com/*",
+    "https://www.ebay.co.uk/*",
+    "https://www.ebay.com/*",
+    "https://www.zara.com/*",
+    "https://www.nike.com/*",
+    "https://www.tesco.com/*",
+    "https://www.sainsburys.co.uk/*"
   ],
   "content_scripts": [
     {
       "matches": [
-        "*://*.asos.com/*",
-        "*://*.amazon.co.uk/*",
-        "*://*.amazon.com/*",
-        "*://*.ebay.co.uk/*",
-        "*://*.ebay.com/*",
-        "*://*.zara.com/*",
-        "*://*.nike.com/*",
-        "*://*.tesco.com/*",
-        "*://*.sainsburys.co.uk/*"
+        "https://www.asos.com/*",
+        "https://www.amazon.co.uk/*",
+        "https://www.amazon.com/*",
+        "https://www.ebay.co.uk/*",
+        "https://www.ebay.com/*",
+        "https://www.zara.com/*",
+        "https://www.nike.com/*",
+        "https://www.tesco.com/*",
+        "https://www.sainsburys.co.uk/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["overlay.html", "overlay.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "overlay.html",
+        "overlay.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ]
 }
