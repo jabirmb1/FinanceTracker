@@ -146,6 +146,8 @@ const inputStyle: React.CSSProperties = {
   borderRadius: "8px",
   border: "1px solid #ccc",
   width: "100%",
+  display: "block",      /* make it a block-level element */
+  margin: "1rem auto"
 };
 
 const fontSizeStyle: React.CSSProperties = {
@@ -158,6 +160,8 @@ const buttonStyle: React.CSSProperties = {
   background: "#88d0f1ff",
   color: "white",
   cursor: "pointer",
+  display: "block",      /* make it a block-level element */
+  margin: "1rem auto"
 };
 
 const addCategoryStyle: React.CSSProperties = {
