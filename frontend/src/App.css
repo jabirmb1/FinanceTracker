@@ -244,8 +244,12 @@ body.dark .btn:hover {
 .bottom-actions {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 1.2rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 0;
 }
 
 body.dark .bottom-actions .btn {

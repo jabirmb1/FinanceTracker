@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo, FormEvent } from "react";
+ import React, { useState, useContext, useMemo, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { AppContext } from "../context/AppContext";

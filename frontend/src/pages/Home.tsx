@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
 import Navbar from "../components/Navbar";
 import Chart from "../components/BarChart";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
@@ -13,6 +13,19 @@ const formatMonth = (key: string): string => {
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };
 
+<<<<<<< HEAD
+=======
+const navButtonStyle: React.CSSProperties = {
+  margin: "0 0.8rem",
+  border: "1px solid #ddd",
+  background: "transparent",
+  cursor: "pointer",
+  fontSize: "1rem",
+  color: "#666",
+  padding: "0.4rem 1rem",
+};
+
+>>>>>>> 4b005a1 (fixed vite ebtry point)
 const Home: React.FC = () => {
   // Global state from context
    const {
@@ -25,6 +38,8 @@ const Home: React.FC = () => {
     currency,
     formatMoney,
   } = useContext<AppContextType>(AppContext);
+
+  const navigate = useNavigate();
 
   // Precompute totals to avoid recalculation
   const totalBudget = useMemo<number>(
@@ -49,7 +64,6 @@ const Home: React.FC = () => {
   return (
     <div className="page">
       <Navbar />
-      <h1 className="title">My finance tracker</h1>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -114,12 +128,27 @@ const Home: React.FC = () => {
 
       {/* Navigation buttons */}
       <div className="bottom-actions">
-        <Link to="/expense" className="btn">
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/expense")}
+        >
           Expense
-        </Link>
-        <Link to="/transactions" className="btn">
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/transactions")}
+        >
           Transactions
-        </Link>
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => navigate("/budget")}
+        >
+          Budget
+        </button>
       </div>
     </div>
   );
