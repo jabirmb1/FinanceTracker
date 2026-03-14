@@ -1,49 +1,26 @@
-/* eslint-disable no-undef */
-
-import React, { useEffect, useState } from "react";
-
-// If TypeScript complains "Cannot find module './App.css'", add a declaration file:
-//   src/custom.d.ts  ->  declare module '*.css';
-// The line below silences the error until you add that declaration.
- // @ts-ignore
-import './App.css';
-
-
-declare global {
-  interface Window {
-    chrome: any;
-  }
-}
+import React from "react";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Expense from "./pages/Expense";
+import Transactions from "./pages/Transactions";
+import Budget from "./pages/Budget";
+import { AppProvider } from "./context/AppContext";
+import Profile from "./components/Profile";
+import "./App.css";
 
 const App: React.FC = () => {
-  const [extensionId, setExtensionId] = useState<string | null>(null);
-  const [message, setMessage] = useState<string>("");
-
-  useEffect(() => {
-    // Check if Chrome APIs are available
-    if (typeof window.chrome !== "undefined" && window.chrome.runtime) {
-      setExtensionId(window.chrome.runtime.id);
-
-      // Example: send a message to background service worker (you’ll add this later)
-      window.chrome.runtime.sendMessage({ type: "HELLO" }, (response: any) => {
-        console.log("Background responded:", response);
-      });
-    } else {
-      setMessage("Not running inside Chrome extension context.");
-    }
-  }, []);
-
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Finance Tracker Extension</h1>
-      <p>🚀 Chrome Extension Base is working!</p>
-
-      {extensionId ? (
-        <p>Extension ID: {extensionId}</p>
-      ) : (
-        <p>{message || "Loading Chrome API..."}</p>
-      )}
-    </div>
+    <AppProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/expense" element={<Expense />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/budget" element={<Budget />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
+      </Router>
+    </AppProvider>
   );
 };
 
