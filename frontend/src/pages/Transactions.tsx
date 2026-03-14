@@ -40,7 +40,7 @@ const Transactions: React.FC = () => {
       <h1 className="title">Transactions</h1>
 
       {/* Transactions table */}
-      <div className="table-wrap">
+      <div className="table-wrap" style={{ padding: "0 10px" }}>
         <table className="table">
           <thead>
             <tr>
@@ -70,47 +70,25 @@ const Transactions: React.FC = () => {
       </div>
 
       {/* Month navigation */}
-      <div
-        className="month-nav"
-        style={{
-          marginTop: "1.5rem",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
-        <div>
-          <button onClick={prevMonth} style={navButtonStyle}>
-            ← Previous
-          </button>
-          <span style={{ fontWeight: 500, opacity: 0.7 }}>
-            <Calendar size={16} style={{ verticalAlign: "middle" }} /> Viewing:{" "}
-            {formatMonthKey(monthKey)}
-          </span>
-          <button onClick={nextMonth} style={navButtonStyle}>
-            Next →
-          </button>
-        </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "1rem 1rem 0" }}>
+        <button onClick={prevMonth} style={{ border: "none", background: "#000", color: "white", borderRadius: "20px", padding: "0.5rem 1rem", cursor: "pointer", fontWeight: 600 }}>
+          ← Prev
+        </button>
+        <span style={{ fontSize: "0.85rem", fontWeight: 500, opacity: 0.7 }}>
+          <Calendar size={14} style={{ verticalAlign: "middle" }} /> {formatMonthKey(monthKey)}
+        </span>
+        <button onClick={nextMonth} style={{ border: "none", background: "#000", color: "white", borderRadius: "20px", padding: "0.5rem 1rem", cursor: "pointer", fontWeight: 600 }}>
+          Next →
+        </button>
+      </div>
 
-        {monthKey !== currentMonthKey && (
-          <button
-            onClick={goToCurrentMonth}
-            style={{
-              background: "#000",
-              color: "white",
-              border: "none",
-              borderRadius: "20px",
-              padding: "0.4rem 1rem",
-              cursor: "pointer",
-              fontSize: "0.95rem",
-            }}
-          >
+      {monthKey !== currentMonthKey && (
+        <div style={{ textAlign: "center", marginTop: "0.5rem" }}>
+          <button onClick={goToCurrentMonth} style={{ background: "#000", color: "white", border: "none", borderRadius: "20px", padding: "0.4rem 1rem", cursor: "pointer", fontSize: "0.85rem" }}>
             Jump to This Month
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Bottom navigation buttons */}
       <div className="bottom-actions">
