@@ -6,6 +6,7 @@ import Transactions from "./pages/Transactions";
 import Budget from "./pages/Budget";
 import { AppProvider } from "./context/AppContext";
 import Profile from "./components/Profile";
+import BottomNav from "./components/BottomNav";
 import "./App.css";
 import Contact from "./pages/Contact";
 
@@ -20,8 +21,9 @@ const App: React.FC = () => {
           <Route path="/budget" element={<Budget />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="*" element={<Home />} /> {/* Catch-all redirects to Home */}
+          <Route path="*" element={<Home />} />
         </Routes>
+        <BottomNav />
       </MemoryRouter>
     </AppProvider>
   );
