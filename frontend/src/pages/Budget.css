@@ -1,0 +1,593 @@
+/* Budget Page Container */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 90px; /* Space for fixed navbar */
+}
+
+/* Title Styling */
+.title {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 700;
+  text-align: center;
+  color: #1a1a1a;
+  margin: 1rem 0 1.5rem;
+  letter-spacing: -0.5px;
+}
+
+/* Budget Table Container */
+.budget-table {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e8e8;
+  transition: box-shadow 0.3s ease;
+}
+
+.budget-table:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.budget-table h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* Table Styling */
+.budget-table table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-bottom: 1.5rem;
+}
+
+.budget-table thead {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f2f5 100%);
+}
+
+.budget-table thead tr th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.budget-table thead tr th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.budget-table th {
+  padding: 1.2rem 1.5rem;
+  text-align: left;
+  font-weight: 700;
+  color: #444;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 3px solid #e0e0e0;
+}
+
+.budget-table tbody tr {
+  border-bottom: 1px solid #f5f5f5;
+  transition: all 0.2s ease;
+}
+
+.budget-table tbody tr:hover {
+  background: linear-gradient(135deg, #f9fafb 0%, #f5f7fa 100%);
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.budget-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.budget-table td {
+  padding: 1.4rem 1.5rem;
+  font-size: 1.05rem;
+  color: #333;
+}
+
+.budget-table td:first-child {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.budget-table td:nth-child(2) {
+  font-weight: 700;
+  color: #2ea043;
+  font-size: 1.1rem;
+}
+
+/* Input Fields in Table */
+.budget-table input[type="number"] {
+  width: 120px;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.budget-table input[type="number"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.15);
+  background: white;
+}
+
+.budget-table input[type="number"]:hover {
+  border-color: #c0c0c0;
+}
+
+/* Action Buttons in Table */
+.budget-table .btn {
+  padding: 0.6rem 1.4rem;
+  border-radius: 24px;
+  border: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.budget-table .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+}
+
+.budget-table .btn:active {
+  transform: translateY(0);
+}
+
+/* Edit Button */
+.budget-table button[style*="background: #f3f3f3"] {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
+  color: #333 !important;
+}
+
+.budget-table button[style*="background: #f3f3f3"]:hover {
+  background: linear-gradient(135deg, #e8e8e8 0%, #d8d8d8 100%) !important;
+}
+
+/* Save Button */
+.budget-table button[style*="background: #4caf50"] {
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+  color: white !important;
+}
+
+.budget-table button[style*="background: #4caf50"]:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%) !important;
+}
+
+/* Add Category Section */
+.budget-table > div {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.budget-table input[type="text"] {
+  flex: 1;
+  padding: 1rem 1.4rem;
+  border-radius: 14px;
+  border: 2px solid #e0e0e0;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  font-weight: 500;
+}
+
+.budget-table input[type="text"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.15);
+  background: white;
+}
+
+.budget-table input[type="text"]:hover {
+  border-color: #c0c0c0;
+}
+
+.budget-table input[type="text"]::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+
+/* Add Category Button */
+.budget-table > div > button {
+  padding: 1rem 2rem;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+  color: white;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.05rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.budget-table > div > button:hover {
+  background: linear-gradient(135deg, #45a049 0%, #3d8b40 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+.budget-table > div > button:active {
+  transform: translateY(-1px);
+}
+
+/* Month Navigation */
+.month-nav {
+  margin-top: 2.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.month-nav > div {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.month-nav span {
+  font-weight: 500;
+  opacity: 0.7;
+  font-size: 1.1rem;
+  white-space: nowrap;
+}
+
+.month-nav button {
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.05rem;
+  color: #666;
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.month-nav button:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #333;
+}
+
+.month-nav button:active {
+  transform: scale(0.95);
+}
+
+/* Jump to Current Month Button */
+.month-nav button[style*="background: #000"] {
+  background: #000 !important;
+  color: white !important;
+  border: none;
+  border-radius: 28px;
+  padding: 0.8rem 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.month-nav button[style*="background: #000"]:hover {
+  background: #222 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transform: translateY(-2px);
+}
+
+/* Bottom Action Buttons */
+.bottom-actions {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+  padding: 0 1rem;
+}
+
+.btn.no-hover {
+  flex: 1;
+  max-width: 280px;
+  padding: 1.2rem 2.5rem;
+  background: #ffffff;
+  color: #333;
+  text-decoration: none;
+  border: 2px solid #ddd;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btn.no-hover:hover {
+  background: #000;
+  color: white;
+  border-color: #000;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn.no-hover:active {
+  transform: translateY(-2px);
+}
+
+/* Desktop Enhancements */
+@media (min-width: 1024px) {
+  .budget-table {
+    padding: 3rem;
+  }
+
+  .budget-table h3 {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
+
+  .budget-table th {
+    padding: 1.4rem 2rem;
+    font-size: 1.05rem;
+  }
+
+  .budget-table td {
+    padding: 1.6rem 2rem;
+    font-size: 1.1rem;
+  }
+
+  .budget-table td:nth-child(2) {
+    font-size: 1.2rem;
+  }
+
+  .budget-table input[type="number"] {
+    width: 140px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1.05rem;
+  }
+
+  .budget-table .btn {
+    padding: 0.7rem 1.6rem;
+    font-size: 1rem;
+  }
+
+  .budget-table input[type="text"] {
+    padding: 1.1rem 1.6rem;
+    font-size: 1.1rem;
+  }
+
+  .budget-table > div > button {
+    padding: 1.1rem 2.4rem;
+    font-size: 1.1rem;
+  }
+
+  .bottom-actions {
+    gap: 2.5rem;
+  }
+
+  .btn.no-hover {
+    max-width: 320px;
+    padding: 1.4rem 3rem;
+    font-size: 1.15rem;
+  }
+}
+
+/* Tablet Adjustments */
+@media (max-width: 1023px) and (min-width: 769px) {
+  .budget-table {
+    padding: 2rem;
+  }
+
+  .budget-table h3 {
+    font-size: 1.4rem;
+  }
+
+  .budget-table th,
+  .budget-table td {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+  }
+
+  .bottom-actions {
+    gap: 1.8rem;
+  }
+
+  .btn.no-hover {
+    padding: 1rem 2rem;
+    max-width: 240px;
+  }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .page {
+    gap: 1.5rem;
+  }
+
+  .title {
+    font-size: 1.8rem;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .budget-table {
+    padding: 1.5rem;
+    border-radius: 16px;
+  }
+
+  .budget-table h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .budget-table table {
+    font-size: 0.9rem;
+  }
+
+  .budget-table th {
+    padding: 0.8rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .budget-table td {
+    padding: 1rem 0.8rem;
+    font-size: 0.95rem;
+  }
+
+  .budget-table td:nth-child(2) {
+    font-size: 1rem;
+  }
+
+  .budget-table .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .budget-table input[type="number"] {
+    width: 100px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .budget-table > div {
+    gap: 1rem;
+  }
+
+  .budget-table input[type="text"] {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .budget-table > div > button {
+    padding: 0.8rem 1.4rem;
+    font-size: 0.95rem;
+  }
+
+  .bottom-actions {
+    gap: 1.2rem;
+  }
+
+  .btn.no-hover {
+    max-width: 200px;
+    padding: 0.9rem 1.8rem;
+    font-size: 1rem;
+  }
+
+  .month-nav button {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .month-nav span {
+    font-size: 0.95rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .budget-table {
+    padding: 1.2rem;
+  }
+
+  .budget-table h3 {
+    font-size: 1.1rem;
+  }
+
+  .budget-table th {
+    padding: 0.7rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .budget-table td {
+    padding: 0.9rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .budget-table td:nth-child(2) {
+    font-size: 0.95rem;
+  }
+
+  .budget-table .btn {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .budget-table input[type="number"] {
+    width: 85px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .budget-table > div {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .budget-table input[type="text"] {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .budget-table > div > button {
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .bottom-actions {
+    gap: 1rem;
+    flex-direction: column;
+  }
+
+  .btn.no-hover {
+    max-width: 100%;
+    padding: 0.8rem 1.5rem;
+  }
+
+  .month-nav button {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .month-nav span {
+    font-size: 0.9rem;
+  }
+}
+
+/* Very Small Screens */
+@media (max-width: 360px) {
+  .budget-table th:last-child,
+  .budget-table td:last-child {
+    width: 80px;
+  }
+
+  .title {
+    font-size: 1.4rem;
+  }
+}

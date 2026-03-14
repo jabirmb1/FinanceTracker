@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
-
+import "./Home.css"; 
 // Format month and year
 const formatMonth = (key: string): string => {
   const [year, month] = key.split("-");
@@ -13,18 +13,9 @@ const formatMonth = (key: string): string => {
   return date.toLocaleString("default", { month: "long", year: "numeric" });
 };
 
-const navButtonStyle: React.CSSProperties = {
-  margin: "0 0.8rem",
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  fontSize: "1rem",
-  color: "#666",
-};
-
 const Home: React.FC = () => {
   // Global state from context
-  const {
+   const {
     budgets,
     expenses,
     monthKey,
@@ -68,68 +59,19 @@ const Home: React.FC = () => {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.4 }}
         >
-          <div
-            className="summary"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "1.5rem",
-              marginBottom: "1.5rem",
-              flexWrap: "wrap",
-            }}
-          >
+          <div className="summary">
             {/* Total budget */}
-            <div
-              style={{
-                background: "#ffffff",
-                color: "#000000",
-                borderRadius: "16px",
-                padding: "0.8rem 1.4rem",
-                fontWeight: 700,
-                border: "1px solid #ddd",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
+            <div>
               💰 <span>Total Budget: {formatMoney(totalBudget)}</span>
             </div>
 
             {/* Total spent */}
-            <div
-              style={{
-                background: "#ffffff",
-                color: "#000000",
-                borderRadius: "16px",
-                padding: "0.8rem 1.4rem",
-                fontWeight: 700,
-                border: "1px solid #ddd",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
+            <div>
               💸 <span>Spent: {formatMoney(totalSpent)}</span>
             </div>
 
             {/* Remaining */}
-            <div
-              style={{
-                background: "#ffffff",
-                color: overspent ? "red" : "#2ea043",
-                borderRadius: "16px",
-                padding: "0.8rem 1.4rem",
-                fontWeight: 700,
-                border: "1px solid #ddd",
-                boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-              }}
-            >
+            <div style={{ color: overspent ? "red" : "#2ea043" }}>
               🌍 <span>Remaining: {formatMoney(remaining)}</span>
             </div>
           </div>
@@ -139,25 +81,15 @@ const Home: React.FC = () => {
       </AnimatePresence>
 
       {/* Month Navigation */}
-      <div
-        className="month-nav"
-        style={{
-          marginTop: "1.5rem",
-          textAlign: "center",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
+      <div className="month-nav">
         <div>
-          <button onClick={prevMonth} style={navButtonStyle}>
+          <button onClick={prevMonth}>
             ← Previous
           </button>
-          <span style={{ fontWeight: 500, opacity: 0.7 }}>
+          <span>
             📅 Viewing: {formatMonth(monthKey)}
           </span>
-          <button onClick={nextMonth} style={navButtonStyle}>
+          <button onClick={nextMonth}>
             Next →
           </button>
         </div>
@@ -170,9 +102,9 @@ const Home: React.FC = () => {
               color: "white",
               border: "none",
               borderRadius: "20px",
-              padding: "0.4rem 1rem",
+              padding: "0.5rem 1.2rem",
               cursor: "pointer",
-              fontSize: "0.95rem",
+              fontSize: "0.9rem",
             }}
           >
             Jump to This Month
