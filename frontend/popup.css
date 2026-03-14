@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Base Reset */
 * {
   margin: 0;
@@ -40,10 +41,28 @@ body {
     height: 900px;
   }
 } */
+=======
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  width: 400px;
+  height: 600px;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #eeebff 100%);
+  color: #1a1a2e;
+  overflow: hidden;
+}
+
+body.dark {
+  background: linear-gradient(135deg, #0f0f1a 0%, #1a0d33 100%);
+  color: #f0eeff;
+}
+>>>>>>> istiaq-code
 
 #root {
   display: flex;
   flex-direction: column;
+<<<<<<< HEAD
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0;
@@ -435,3 +454,13 @@ Small Mobile
     gap: 1rem;
   }
 } */
+=======
+  height: 600px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#root::-webkit-scrollbar { width: 4px; }
+#root::-webkit-scrollbar-track { background: transparent; }
+#root::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.2); border-radius: 99px; }
+>>>>>>> istiaq-code

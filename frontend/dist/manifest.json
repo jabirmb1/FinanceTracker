@@ -13,5 +13,53 @@
     "48": "icon48.png",
     "128": "logo512.png"
   },
+<<<<<<< HEAD
   "permissions": ["storage"]
 }
+=======
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.asos.com/*",
+    "https://www.amazon.co.uk/*",
+    "https://www.amazon.com/*",
+    "https://www.ebay.co.uk/*",
+    "https://www.ebay.com/*",
+    "https://www.zara.com/*",
+    "https://www.nike.com/*",
+    "https://www.tesco.com/*",
+    "https://www.sainsburys.co.uk/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.asos.com/*",
+        "https://www.amazon.co.uk/*",
+        "https://www.amazon.com/*",
+        "https://www.ebay.co.uk/*",
+        "https://www.ebay.com/*",
+        "https://www.zara.com/*",
+        "https://www.nike.com/*",
+        "https://www.tesco.com/*",
+        "https://www.sainsburys.co.uk/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "overlay.html",
+        "overlay.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
+>>>>>>> istiaq-code
