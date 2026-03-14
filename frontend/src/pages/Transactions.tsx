@@ -1,74 +1,90 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
-import { Calendar } from "lucide-react";
 
-const CHIP_COLORS: Record<string, { bg: string; color: string; dot: string }> = {
-  Food:         { bg: "#fff3e0", color: "#e65100", dot: "#ff9800" },
-  Subscription: { bg: "#e8f5e9", color: "#1b5e20", dot: "#4caf50" },
-  Clothes:      { bg: "#fce4ec", color: "#880e4f", dot: "#e91e63" },
-  Savings:      { bg: "#e3f2fd", color: "#0d47a1", dot: "#2196f3" },
-  Transport:    { bg: "#f3e5f5", color: "#4a148c", dot: "#9c27b0" },
+const CATEGORY_COLORS: Record<string, string> = {
+  Food: "#f97316", Clothes: "#ec4899", Subscription: "#10b981",
+  Savings: "#3b82f6", Transport: "#8b5cf6", Entertainment: "#f59e0b",
 };
+const defaultColor = "#6b7280";
 
-const CategoryChip: React.FC<{ category: string }> = ({ category }) => {
-  const c = CHIP_COLORS[category] || { bg: "#f5f5f5", color: "#555", dot: "#999" };
-  return (
-    <span style={{ background: c.bg, color: c.color, borderRadius: 20, padding: "2px 8px", fontSize: "0.65rem", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
-      <span style={{ width: 5, height: 5, borderRadius: "50%", background: c.dot, display: "inline-block" }} />
-      {category}
-    </span>
-  );
+const formatMonth = (key: string): string => {
+  const [year, month] = key.split("-");
+  const date = new Date(Number(year), Number(month) - 1);
+  return date.toLocaleString("default", { month: "long", year: "numeric" });
 };
 
 const Transactions: React.FC = () => {
-  const { expenses, monthKey, prevMonth, nextMonth, goToCurrentMonth, formatMoney } = useContext<AppContextType>(AppContext);
+  const { expenses, monthKey, prevMonth, nextMonth, goToCurrentMonth, formatMoney } =
+    useContext<AppContextType>(AppContext);
+
+  const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
+  useEffect(() => {
+    const t = setInterval(() => setIsDark(document.body.classList.contains("dark")), 300);
+    return () => clearInterval(t);
+  }, []);
+
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
-  const formatMonthKey = (key: string): string => {
-    const [year, month] = key.split("-");
-    const date = new Date(Number(year), Number(month) - 1);
-    return date.toLocaleString("default", { month: "long", year: "numeric" });
-  };
+  const cardBg     = isDark ? "#161b22" : "#ffffff";
+  const cardBorder = isDark ? "#30363d" : "#e8ecf0";
+  const textMain   = isDark ? "#e6edf3" : "#0f1c2e";
+  const textMuted  = isDark ? "#8b949e" : "#6b7280";
+  const navBg      = isDark ? "#161b22" : "#f7f8fa";
 
   return (
     <div className="page">
-      <h1 className="title">Transactions</h1>
+      <h1 className="title" style={{ color: textMain }}>Transactions</h1>
 
-      {/* Month nav */}
-      <div className="month-nav">
-        <button onClick={prevMonth}>← Prev</button>
-        <span><Calendar size={13} style={{ verticalAlign: "middle", marginRight: 4 }} />{formatMonthKey(monthKey)}</span>
-        <button onClick={nextMonth}>Next →</button>
+      {/* Transaction cards */}
+      {expenses.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px 0", color: textMuted }}>
+          <div style={{ fontSize: "2rem", marginBottom: 8 }}>🧾</div>
+          <p style={{ fontWeight: 600, fontSize: "0.82rem" }}>No transactions this month</p>
+          <p style={{ fontSize: "0.72rem", opacity: 0.6, marginTop: 4 }}>Add an expense to get started</p>
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          {expenses.map(e => {
+            const color = CATEGORY_COLORS[e.category] || defaultColor;
+            return (
+              <div key={e.id} className="tx-card" style={{
+                background: cardBg, border: `1px solid ${cardBorder}`,
+                borderRadius: 14, padding: "14px 16px",
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+              }}>
+                <div>
+                  <p className="tx-desc" style={{ margin: "0 0 6px", fontWeight: 700, fontSize: "0.9rem", color: textMain }}>{e.description}</p>
+                  <span style={{
+                    display: "inline-flex", alignItems: "center", gap: 5,
+                    background: color + "18", borderRadius: 99,
+                    padding: "3px 10px", fontSize: "0.65rem", fontWeight: 700, color,
+                  }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: color, display: "inline-block" }} />
+                    {e.category}
+                  </span>
+                </div>
+                <span className="tx-amount" style={{ fontWeight: 900, fontSize: "1rem", color: textMain }}>{formatMoney(e.amount)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Month nav — at the bottom, same style as Budget */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 8 }}>
+        <button onClick={prevMonth} style={{ background: navBg, border: `1px solid ${cardBorder}`, borderRadius: 99, padding: "7px 14px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", color: textMuted, fontFamily: "inherit" }}>← Prev</button>
+        <span style={{ fontSize: "0.72rem", color: textMuted, fontWeight: 600 }}>{formatMonth(monthKey)}</span>
+        <button onClick={nextMonth} style={{ background: navBg, border: `1px solid ${cardBorder}`, borderRadius: 99, padding: "7px 14px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", color: textMuted, fontFamily: "inherit" }}>Next →</button>
       </div>
 
       {monthKey !== currentMonthKey && (
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          <button onClick={goToCurrentMonth} style={{ background: "#6c63ff", color: "white", border: "none", borderRadius: 99, padding: "5px 14px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer" }}>
+          <button onClick={goToCurrentMonth} style={{ background: "#6c63ff", color: "#fff", border: "none", borderRadius: 99, padding: "6px 16px", fontSize: "0.7rem", fontWeight: 700, cursor: "pointer" }}>
             Jump to This Month
           </button>
         </div>
       )}
-
-      {/* Transaction list */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
-        {expenses.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "32px 0" }}>
-            <div style={{ fontSize: "2.5rem", marginBottom: 8 }}>🧾</div>
-            <p style={{ color: "#aaa", fontSize: "0.82rem", fontWeight: 600 }}>No transactions yet this month</p>
-          </div>
-        ) : (
-          expenses.map((r) => (
-            <div key={r.id} style={{ background: "#fff", borderRadius: 12, padding: "10px 12px", border: "1px solid #f0eeff", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 1px 4px rgba(108,99,255,0.05)" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1a1a2e", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.description}</span>
-                <CategoryChip category={r.category} />
-              </div>
-              <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1a1a2e", marginLeft: 12, flexShrink: 0 }}>{formatMoney(r.amount)}</span>
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 };

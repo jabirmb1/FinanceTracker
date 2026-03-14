@@ -165,3 +165,77 @@ body.dark .table th, body.dark .table td { border-color: #2a2a45; color: #f0eeff
 body.dark .remaining { background: #1a1a2e; border-color: #2a2a45; color: #f0eeff; }
 body.dark .btn { border-color: #6c63ff; color: #a78bfa; background: transparent; }
 body.dark .btn:hover { background: #6c63ff; color: white; }
+
+/* ── CSS VARIABLES (set by onboarding) ─────────── */
+:root {
+  --accent: #1e3a5f;
+  --chart-color: #3b82f6;
+}
+
+/* Use accent variable everywhere it matters */
+.btn.primary,
+.btn.primary:hover { background: var(--accent); box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 30%, transparent); }
+.table th { color: var(--accent); }
+.summary-card .label { color: var(--accent); }
+
+/* ── DARK MODE — full coverage ──────────────────── */
+body.dark .page { background: #0d1117; color: #e6edf3; }
+body.dark .panel { background: #161b22; border-color: #30363d; }
+body.dark input, body.dark select { background: #161b22; color: #e6edf3; border-color: #30363d; }
+body.dark input::placeholder { color: #484f58; }
+
+/* Bottom nav */
+body.dark .bottom-nav { background: #0d1117; border-top-color: #30363d; }
+body.dark .bottom-nav .nav-item { color: #8b949e; }
+body.dark .bottom-nav .nav-item.active { color: var(--accent, #a78bfa); }
+
+/* Budget page cards */
+body.dark .budget-card { background: #161b22; border-color: #30363d; color: #e6edf3; }
+body.dark .budget-card input { background: #0d1117; color: #e6edf3; border-color: #30363d; }
+body.dark .budget-card .edit-btn { background: #21262d; color: #e6edf3; border-color: #30363d; }
+
+/* Transactions cards */
+body.dark .tx-card { background: #161b22; border-color: #30363d; color: #e6edf3; }
+body.dark .tx-card .tx-desc { color: #e6edf3; }
+body.dark .tx-card .tx-amount { color: #e6edf3; }
+
+/* Month nav */
+body.dark .month-nav-row { color: #8b949e; }
+body.dark .month-nav-row button { color: #8b949e; background: #161b22; border-color: #30363d; }
+
+/* Summary cards on Home */
+body.dark .summary-card { background: #161b22; border-color: #30363d; }
+body.dark .summary-card .value { color: #e6edf3; }
+
+/* Spending ring text */
+body.dark .ring-spent { color: #e6edf3 !important; }
+body.dark .ring-of { color: #8b949e !important; }
+body.dark .ring-pct { color: var(--accent, #a78bfa) !important; }
+
+/* Bar chart tooltip */
+body.dark .recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  color: #e6edf3 !important;
+}
+body.dark .recharts-tooltip-label { color: #e6edf3 !important; }
+body.dark .recharts-tooltip-item { color: #8b949e !important; }
+body.dark .recharts-cartesian-axis-tick text { fill: #8b949e !important; }
+
+/* Tables */
+body.dark .table th { background: #161b22; color: #8b949e; border-color: #30363d; }
+body.dark .table td { border-color: #30363d; color: #e6edf3; }
+body.dark .table-wrap { background: #0d1117; }
+
+/* Buttons */
+body.dark .btn { border-color: #30363d; color: #e6edf3; background: #161b22; }
+body.dark .btn.primary { background: var(--accent, #a78bfa); color: #fff; border: none; }
+
+/* Profile insights cards */
+body.dark .insight-card { background: #161b22; border-color: #30363d; color: #e6edf3; }
+
+/* Titles */
+body.dark .title { color: #e6edf3; }
+body.dark h1, body.dark h2, body.dark h3 { color: #e6edf3; }
+body.dark label, body.dark span, body.dark p { color: #8b949e; }
+body.dark strong { color: #e6edf3; }

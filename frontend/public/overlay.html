@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: transparent; overflow: hidden; font-family: 'Segoe UI', -apple-system, sans-serif; }
+    #overlay-root { position: fixed; inset: 0; pointer-events: none; z-index: 2147483647; }
+    /* All direct children handle their own pointer events */
+    #overlay-root > * { pointer-events: all; }
+  </style>
+</head>
+<body>
+  <div id="overlay-root"></div>
+  <script src="overlay.js"></script>
+</body>
+</html>
