@@ -13,10 +13,6 @@
     "48": "icon48.png",
     "128": "logo512.png"
   },
-<<<<<<< HEAD
-  "permissions": ["storage"]
-}
-=======
   "permissions": [
     "storage"
   ],
@@ -62,4 +58,3 @@
     }
   ]
 }
->>>>>>> istiaq-code
