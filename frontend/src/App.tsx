@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React from "react";
-=======
 import React, { useState, useEffect } from "react";
->>>>>>> istiaq-code
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import Home from "./pages/Home";
 import Expense from "./pages/Expense";
@@ -10,17 +6,12 @@ import Transactions from "./pages/Transactions";
 import Budget from "./pages/Budget";
 import { AppProvider } from "./context/AppContext";
 import Profile from "./components/Profile";
-<<<<<<< HEAD
-=======
 import BottomNav from "./components/BottomNav";
 import Onboarding from "./components/Onboarding";
->>>>>>> istiaq-code
 import "./App.css";
 import Contact from "./pages/Contact";
 
 const App: React.FC = () => {
-<<<<<<< HEAD
-=======
   const [onboarded, setOnboarded] = useState<boolean>(
     () => localStorage.getItem("onboardingDone") === "true"
   );
@@ -63,7 +54,6 @@ const App: React.FC = () => {
     return <Onboarding onComplete={() => setOnboarded(true)} />;
   }
 
->>>>>>> istiaq-code
   return (
     <AppProvider>
       <MemoryRouter initialEntries={['/']}>
@@ -74,21 +64,12 @@ const App: React.FC = () => {
           <Route path="/budget" element={<Budget />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/contact" element={<Contact />} />
-<<<<<<< HEAD
-          <Route path="*" element={<Home />} /> {/* Catch-all redirects to Home */}
-        </Routes>
-=======
           <Route path="*" element={<Home />} />
         </Routes>
         <BottomNav />
->>>>>>> istiaq-code
       </MemoryRouter>
     </AppProvider>
   );
 };
 
-<<<<<<< HEAD
 export default App;
-=======
-export default App;
->>>>>>> istiaq-code
