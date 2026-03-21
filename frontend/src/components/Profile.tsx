@@ -607,8 +607,4 @@ const Profile: React.FC = () => {
   );
 };
 
-<<<<<<< HEAD
 export default Profile;
-=======
-export default Profile;
->>>>>>> istiaq-code
