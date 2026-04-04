@@ -24,16 +24,21 @@ export default function Budget() {
   };
   const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
   const [accentId, setAccentId] = useState(() => localStorage.getItem("accentColor") || "midnight");
+
+  // Fix #6: remove setInterval, use event listener only
   useEffect(() => {
     const sync = () => {
       setIsDark(document.body.classList.contains("dark"));
       setAccentId(localStorage.getItem("accentColor") || "midnight");
     };
-    const t = setInterval(sync, 150);
     window.addEventListener("ft-settings-change", sync);
-    return () => { clearInterval(t); window.removeEventListener("ft-settings-change", sync); };
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
-  const accent = ACCENT_MAP[accentId] || localStorage.getItem("customAccent") || "#6c63ff";
+
+  // Fix #13: proper custom accent handling
+  const accent = accentId === "custom"
+    ? (localStorage.getItem("customAccent") || "#6c63ff")
+    : (ACCENT_MAP[accentId] || "#6c63ff");
 
   const currentMonthKey = new Date().toISOString().slice(0, 7);
 
@@ -109,6 +114,7 @@ export default function Budget() {
               type="text"
               value={newCat}
               onChange={e => setNewCat(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleAddCategory(); }}
               placeholder="Add new category..."
               style={{ flex: 1, padding: "11px 14px", borderRadius: 12, border: `1px solid ${cardBorder}`, background: inputBg, color: textMain, fontFamily: "inherit", fontSize: "0.82rem" }}
             />
