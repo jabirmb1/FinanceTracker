@@ -15,13 +15,16 @@ const formatMonth = (key: string): string => {
 };
 
 const Transactions: React.FC = () => {
-  const { expenses, monthKey, prevMonth, nextMonth, goToCurrentMonth, formatMoney } =
+  const { expenses, monthKey, prevMonth, nextMonth, goToCurrentMonth, formatMoney, deleteExpense } =
     useContext<AppContextType>(AppContext);
 
   const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
+
+  // Fix #6: replaced setInterval polling with event listener only
   useEffect(() => {
-    const t = setInterval(() => setIsDark(document.body.classList.contains("dark")), 300);
-    return () => clearInterval(t);
+    const sync = () => setIsDark(document.body.classList.contains("dark"));
+    window.addEventListener("ft-settings-change", sync);
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
 
   const currentMonthKey = new Date().toISOString().slice(0, 7);
@@ -36,7 +39,6 @@ const Transactions: React.FC = () => {
     <div className="page">
       <h1 className="title" style={{ color: textMain }}>Transactions</h1>
 
-      {/* Transaction cards */}
       {expenses.length === 0 ? (
         <div style={{ textAlign: "center", padding: "40px 0", color: textMuted }}>
           <div style={{ fontSize: "2rem", marginBottom: 8 }}>🧾</div>
@@ -52,9 +54,12 @@ const Transactions: React.FC = () => {
                 background: cardBg, border: `1px solid ${cardBorder}`,
                 borderRadius: 14, padding: "14px 16px",
                 display: "flex", alignItems: "center", justifyContent: "space-between",
+                gap: 8,
               }}>
-                <div>
-                  <p className="tx-desc" style={{ margin: "0 0 6px", fontWeight: 700, fontSize: "0.9rem", color: textMain }}>{e.description}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="tx-desc" style={{ margin: "0 0 6px", fontWeight: 700, fontSize: "0.9rem", color: textMain, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {e.description}
+                  </p>
                   <span style={{
                     display: "inline-flex", alignItems: "center", gap: 5,
                     background: color + "18", borderRadius: 99,
@@ -64,14 +69,33 @@ const Transactions: React.FC = () => {
                     {e.category}
                   </span>
                 </div>
-                <span className="tx-amount" style={{ fontWeight: 900, fontSize: "1rem", color: textMain }}>{formatMoney(e.amount)}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+                  <span className="tx-amount" style={{ fontWeight: 900, fontSize: "1rem", color: textMain }}>
+                    {formatMoney(e.amount)}
+                  </span>
+                  {/* Fix #10: delete button wired to deleteExpense */}
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Delete "${e.description}"?`)) deleteExpense(e.id);
+                    }}
+                    title="Delete transaction"
+                    style={{
+                      background: "none", border: `1px solid ${cardBorder}`,
+                      borderRadius: 8, padding: "4px 8px",
+                      cursor: "pointer", fontSize: "0.75rem", color: "#ef4444",
+                      fontFamily: "inherit", lineHeight: 1,
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* Month nav — at the bottom, same style as Budget */}
+      {/* Month nav */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginTop: 8 }}>
         <button onClick={prevMonth} style={{ background: navBg, border: `1px solid ${cardBorder}`, borderRadius: 99, padding: "7px 14px", fontSize: "0.75rem", fontWeight: 700, cursor: "pointer", color: textMuted, fontFamily: "inherit" }}>← Prev</button>
         <span style={{ fontSize: "0.72rem", color: textMuted, fontWeight: 600 }}>{formatMonth(monthKey)}</span>
