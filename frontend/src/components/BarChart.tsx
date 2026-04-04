@@ -17,21 +17,21 @@ const CHART_COLOR_MAP: Record<string, string> = {
 const Chart: React.FC = () => {
   const { expenses, budgets, currency } = useContext<AppContextType>(AppContext);
   const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
-
   const [chartColorId, setChartColorId] = useState(() => localStorage.getItem("chartColor") || "blue");
   const [spentColorId, setSpentColorId] = useState(() => localStorage.getItem("spentColor") || "green");
 
+  // Fix #6: remove setInterval, use event listener only
   useEffect(() => {
     const sync = () => {
       setChartColorId(localStorage.getItem("chartColor") || "blue");
       setSpentColorId(localStorage.getItem("spentColor") || "green");
       setIsDark(document.body.classList.contains("dark"));
     };
-    const t = setInterval(sync, 150);
     window.addEventListener("ft-settings-change", sync);
-    return () => { clearInterval(t); window.removeEventListener("ft-settings-change", sync); };
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
 
+  // Fix #13: proper custom colour handling
   const budgetColor = chartColorId === "custom"
     ? (localStorage.getItem("customChart") || "#3b82f6")
     : (CHART_COLOR_MAP[chartColorId] || "#3b82f6");
