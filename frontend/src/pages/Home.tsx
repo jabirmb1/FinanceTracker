@@ -20,23 +20,27 @@ const SpendingRing: React.FC<{ spent: number; budget: number; currency: string }
   const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
   const [accentId, setAccentId] = useState(() => localStorage.getItem("accentColor") || "midnight");
 
+  // Fix #6: remove setInterval, use event listener only
   useEffect(() => {
     const sync = () => {
       setIsDark(document.body.classList.contains("dark"));
       setAccentId(localStorage.getItem("accentColor") || "midnight");
     };
-    const t = setInterval(sync, 150);
     window.addEventListener("ft-settings-change", sync);
-    return () => { clearInterval(t); window.removeEventListener("ft-settings-change", sync); };
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
 
   const pct   = budget > 0 ? Math.min(spent / budget, 1) : 0;
   const r     = 52, circ = 2 * Math.PI * r;
   const dash  = pct * circ;
-  const accentColor = accentId === "custom" ? (localStorage.getItem("customAccent") || "#6c63ff") : (ACCENT_MAP[accentId] || "#6c63ff");
+
+  // Fix #13: proper custom accent handling
+  const accentColor = accentId === "custom"
+    ? (localStorage.getItem("customAccent") || "#6c63ff")
+    : (ACCENT_MAP[accentId] || "#6c63ff");
+
   const color = pct > 0.9 ? "#ef4444" : pct > 0.7 ? "#f59e0b" : accentColor;
 
-  // Contrast-safe text colours
   const spentColor  = isDark ? "#e6edf3" : "#0f1c2e";
   const ofColor     = isDark ? "#8b949e" : "#6b7280";
   const trackColor  = isDark ? "#21262d" : "#f0eeff";
@@ -70,9 +74,12 @@ const Home: React.FC = () => {
   const navigate = useNavigate();
 
   const [isDark, setIsDark] = useState(() => document.body.classList.contains("dark"));
+
+  // Fix #6: remove setInterval, use event listener only
   useEffect(() => {
-    const t = setInterval(() => setIsDark(document.body.classList.contains("dark")), 300);
-    return () => clearInterval(t);
+    const sync = () => setIsDark(document.body.classList.contains("dark"));
+    window.addEventListener("ft-settings-change", sync);
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
 
   const totalBudget = useMemo(() => budgets.reduce((s, b) => s + b.budget, 0), [budgets]);
