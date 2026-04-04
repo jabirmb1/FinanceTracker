@@ -76,20 +76,21 @@ const BottomNav: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isDark, setIsDark] = useState(() => localStorage.getItem("theme") === "dark");
-
   const [accentId, setAccentId] = useState(() => localStorage.getItem("accentColor") || "midnight");
 
+  // Fix #6: remove setInterval, use event listener only
   useEffect(() => {
     const sync = () => {
       setIsDark(document.body.classList.contains("dark"));
       setAccentId(localStorage.getItem("accentColor") || "midnight");
     };
-    const interval = setInterval(sync, 150);
     window.addEventListener("ft-settings-change", sync);
-    return () => { clearInterval(interval); window.removeEventListener("ft-settings-change", sync); };
+    return () => window.removeEventListener("ft-settings-change", sync);
   }, []);
 
-  const accent = accentId === "custom" ? (localStorage.getItem("customAccent") || "#6c63ff") : (ACCENT_MAP[accentId] || "#6c63ff");
+  const accent = accentId === "custom"
+    ? (localStorage.getItem("customAccent") || "#6c63ff")
+    : (ACCENT_MAP[accentId] || "#6c63ff");
 
   const bg     = isDark ? "#0d1117"              : "rgba(255,255,255,0.97)";
   const border = isDark ? "#30363d"              : "#f0eeff";
