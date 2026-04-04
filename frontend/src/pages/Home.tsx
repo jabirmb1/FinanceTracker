@@ -4,12 +4,7 @@ import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
 import Chart from "../components/BarChart";
-
-const formatMonth = (key: string): string => {
-  const [year, month] = key.split("-");
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleString("default", { month: "long", year: "numeric" });
-};
+import { formatMonth } from "../utils";
 
 const ACCENT_MAP: Record<string, string> = {
   midnight: "#6c63ff", ocean: "#0369a1", forest: "#2d6a4f", navy: "#1e3a5f",

@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
+import { formatMonth } from "../utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Food: "#f97316", Clothes: "#ec4899", Subscription: "#10b981",
@@ -8,11 +9,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 const defaultColor = "#6b7280";
 
-const formatMonth = (key: string): string => {
-  const [year, month] = key.split("-");
-  const date = new Date(Number(year), Number(month) - 1);
-  return date.toLocaleString("default", { month: "long", year: "numeric" });
-};
 
 const Transactions: React.FC = () => {
   const { expenses, monthKey, prevMonth, nextMonth, goToCurrentMonth, formatMoney, deleteExpense } =

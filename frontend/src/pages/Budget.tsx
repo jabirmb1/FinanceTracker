@@ -3,12 +3,7 @@ import { AppContext } from "../context/AppContext";
 import type { AppContextType } from "../context/AppContext";
 import { AnimatePresence, motion } from "framer-motion";
 import "./Budget.css";
-
-const formatMonth = (key: string): string => {
-  const [year, month] = key.split("-") as [string, string];
-  const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1);
-  return date.toLocaleString("default", { month: "long", year: "numeric" });
-};
+import { formatMonth } from "../utils";
 
 export default function Budget() {
   const { budgets, updateBudget, monthKey, prevMonth, nextMonth, goToCurrentMonth, currency, formatMoney, categories, addCategory } =
