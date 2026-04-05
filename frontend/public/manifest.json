@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Finance Tracker",
   "version": "1.0",
+  "description": "Track your expenses automatically when shopping online",
   "action": {
     "default_popup": "popup.html"
   },
@@ -14,47 +15,20 @@
     "128": "logo512.png"
   },
   "permissions": [
-    "storage"
-  ],
-  "host_permissions": [
-    "https://www.asos.com/*",
-    "https://www.amazon.co.uk/*",
-    "https://www.amazon.com/*",
-    "https://www.ebay.co.uk/*",
-    "https://www.ebay.com/*",
-    "https://www.zara.com/*",
-    "https://www.nike.com/*",
-    "https://www.tesco.com/*",
-    "https://www.sainsburys.co.uk/*"
+    "storage",
+    "activeTab"
   ],
   "content_scripts": [
     {
-      "matches": [
-        "https://www.asos.com/*",
-        "https://www.amazon.co.uk/*",
-        "https://www.amazon.com/*",
-        "https://www.ebay.co.uk/*",
-        "https://www.ebay.com/*",
-        "https://www.zara.com/*",
-        "https://www.nike.com/*",
-        "https://www.tesco.com/*",
-        "https://www.sainsburys.co.uk/*"
-      ],
-      "js": [
-        "content.js"
-      ],
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
       "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": [
-        "overlay.html",
-        "overlay.js"
-      ],
-      "matches": [
-        "<all_urls>"
-      ]
+      "resources": ["overlay.html", "overlay.js"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
