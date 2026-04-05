@@ -197,7 +197,11 @@ function renderBanner() {
     state.bannerVisible = false;
     render();
 
+<<<<<<< HEAD
     //  tell content.js to REMOVE iframe
+=======
+    // 🔥 tell content.js to REMOVE iframe
+>>>>>>> f629e86 (implemneted cart popup functionality WIP: popup UI and auto add sum to tracker)
     window.parent.postMessage({ type: "FT_DISMISS_OVERLAY" }, "*");
   };
 
