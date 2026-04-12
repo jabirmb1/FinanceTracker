@@ -197,7 +197,7 @@ function renderBanner() {
     state.bannerVisible = false;
     render();
 
-    // 🔥 tell content.js to REMOVE iframe
+    //  tell content.js to REMOVE iframe
     window.parent.postMessage({ type: "FT_DISMISS_OVERLAY" }, "*");
   };
 
@@ -413,9 +413,10 @@ function renderImpulseModal() {
 
 // ── UTILITY ───────────────────────────────────────────────────────
 
-function el(tag, attrs = {}) {
+function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+  children.forEach(child => e.appendChild(child));
   return e;
 }
 
