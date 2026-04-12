@@ -198,10 +198,14 @@ function renderBanner() {
     render();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     //  tell content.js to REMOVE iframe
 =======
     // 🔥 tell content.js to REMOVE iframe
 >>>>>>> f629e86 (implemneted cart popup functionality WIP: popup UI and auto add sum to tracker)
+=======
+    //  tell content.js to REMOVE iframe
+>>>>>>> e22054a (updated public)
     window.parent.postMessage({ type: "FT_DISMISS_OVERLAY" }, "*");
   };
 
@@ -417,9 +421,10 @@ function renderImpulseModal() {
 
 // ── UTILITY ───────────────────────────────────────────────────────
 
-function el(tag, attrs = {}) {
+function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+  children.forEach(child => e.appendChild(child));
   return e;
 }
 
