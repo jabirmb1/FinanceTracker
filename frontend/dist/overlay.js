@@ -413,10 +413,9 @@ function renderImpulseModal() {
 
 // ── UTILITY ───────────────────────────────────────────────────────
 
-function el(tag, attrs = {}, ...children) {
+function el(tag, attrs = {}) {
   const e = document.createElement(tag);
   Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
-  children.forEach(child => e.appendChild(child));
   return e;
 }
 
