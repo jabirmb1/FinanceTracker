@@ -88,7 +88,7 @@ function render() {
   if (!root) return;
   root.innerHTML = "";
   if (state.bannerVisible) root.appendChild(renderBanner());
-  root.appendChild(renderWidget());
+  // root.appendChild(renderWidget());
   if (state.impulsePhase !== "idle") root.appendChild(renderImpulseModal());
 }
 
@@ -103,60 +103,134 @@ function renderBanner() {
 
   const banner = el("div", {
     style: `
-      position:fixed;bottom:0;left:0;right:0;
-      background:#fff;
-      border-top:3px solid ${isOver ? "#b94040" : "#2d6a4f"};
-      padding:14px 16px 18px;
-      box-shadow:0 -8px 30px rgba(0,0,0,0.15);
-      pointer-events:all;
-      font-family:'Segoe UI',-apple-system,sans-serif;
-      transform:${state.bannerAnimIn ? "translateY(0)" : "translateY(100%)"};
-      transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
-      z-index:2147483647;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #e8ecf0;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      padding: 12px 14px;
+      pointer-events: auto;
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     `
   });
 
-  const topRow = el("div", { style: "display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;" });
+  // ── TOP ROW ──
+  const topRow = el("div", {
+    style: "display:flex;justify-content:space-between;align-items:flex-start;"
+  });
+
   const left = el("div");
 
-  const pill = el("div", { style: "display:inline-flex;align-items:center;gap:5px;margin-bottom:5px;" });
-  const dot = el("div", { style: `width:7px;height:7px;border-radius:50%;background:${isOver ? "#b94040" : "#2d6a4f"};` });
-  const pillText = el("span", { style: `font-size:0.58rem;font-weight:700;color:${isOver ? "#b94040" : "#2d6a4f"};text-transform:uppercase;letter-spacing:1px;` });
-  pillText.textContent = `Finance Tracker · ${state.cartCategory} Budget`;
+  const pill = el("div", {
+    style: "display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;"
+  });
+
+  const dot = el("div", {
+    style: `width:7px;height:7px;border-radius:50%;background:${isOver ? "#b94040" : "#2d6a4f"};`
+  });
+
+  const pillText = el("span", {
+    style: `font-size:0.55rem;font-weight:700;color:${isOver ? "#b94040" : "#2d6a4f"};text-transform:uppercase;letter-spacing:1px;`
+  });
+  pillText.textContent = `${state.cartCategory} Budget`;
+
   pill.append(dot, pillText);
 
-  const cartLine = el("p", { style: "margin:0 0 3px;font-size:0.95rem;font-weight:700;color:#111;" });
+  const cartLine = el("p", {
+    style: "margin:0 0 2px;font-size:0.9rem;font-weight:700;color:#111;"
+  });
   cartLine.textContent = `Cart: ${state.currency}${state.cartTotal.toFixed(2)}`;
 
-  const subLine = el("p", { style: "margin:0;font-size:0.7rem;color:#888;" });
-  subLine.innerHTML = `You have <strong style="color:${isOver ? "#b94040" : "#2d6a4f"}">${state.currency}${remaining.toFixed(2)} left</strong> in ${state.cartCategory} this month`;
+  const subLine = el("p", {
+    style: "margin:0;font-size:0.65rem;color:#777;"
+  });
+  subLine.innerHTML = `
+    ${isOver ? "Over budget by" : "Remaining"} 
+    <strong style="color:${isOver ? "#b94040" : "#2d6a4f"}">
+      ${state.currency}${Math.abs(isOver ? overBy : remaining).toFixed(2)}
+    </strong>
+  `;
 
   left.append(pill, cartLine, subLine);
 
-  const right = el("div", { style: "display:flex;flex-direction:column;align-items:flex-end;gap:6px;" });
-  const badge = el("div", { style: `background:${isOver ? "#b94040" : "#2d6a4f"};color:#fff;border-radius:99px;padding:4px 10px;font-size:0.62rem;font-weight:800;white-space:nowrap;` });
-  badge.textContent = isOver ? `Over by ${state.currency}${overBy.toFixed(2)}` : "✓ Within budget";
+  // ── RIGHT SIDE ──
+  const right = el("div", {
+    style: "display:flex;flex-direction:column;align-items:flex-end;gap:6px;"
+  });
+
+  const badge = el("div", {
+    style: `
+      background:${isOver ? "#b94040" : "#2d6a4f"};
+      color:#fff;
+      border-radius:99px;
+      padding:3px 8px;
+      font-size:0.6rem;
+      font-weight:800;
+      white-space:nowrap;
+    `
+  });
+  badge.textContent = isOver ? "Over budget" : "✓ OK";
+
   right.appendChild(badge);
 
-  const dismissBtn = el("button", { style: "background:none;border:1px solid #ddd;border-radius:99px;padding:3px 10px;font-size:0.6rem;cursor:pointer;color:#888;font-family:inherit;" });
+  // ── DISMISS BUTTON ──
+  const dismissBtn = el("button", {
+    style: `
+      background:none;
+      border:1px solid #ddd;
+      border-radius:99px;
+      padding:3px 9px;
+      font-size:0.6rem;
+      cursor:pointer;
+      color:#888;
+      font-family:inherit;
+    `
+  });
+
   dismissBtn.textContent = "Dismiss";
-  dismissBtn.onclick = () => { state.bannerVisible = false; render(); };
+
+  dismissBtn.onclick = () => {
+    state.bannerVisible = false;
+    render();
+
+    //  tell content.js to REMOVE iframe
+    window.parent.postMessage({ type: "FT_DISMISS_OVERLAY" }, "*");
+  };
+
   right.appendChild(dismissBtn);
 
   topRow.append(left, right);
 
-  const barWrap = el("div", { style: "background:#f0ede8;border-radius:99px;height:5px;overflow:hidden;" });
-  const barFill = el("div", { style: `width:${pct * 100}%;height:100%;background:${isOver ? "#b94040" : "#2d6a4f"};border-radius:99px;` });
+  // ── PROGRESS BAR ──
+  const barWrap = el("div", {
+    style: "background:#f0ede8;border-radius:99px;height:5px;overflow:hidden;margin-top:8px;"
+  });
+
+  const barFill = el("div", {
+    style: `
+      width:${pct * 100}%;
+      height:100%;
+      background:${isOver ? "#b94040" : "#2d6a4f"};
+      border-radius:99px;
+      transition: width 0.3s ease;
+    `
+  });
+
   barWrap.appendChild(barFill);
 
   banner.append(topRow, barWrap);
+
   return banner;
 }
 
 // ── 2. CAN I AFFORD THIS WIDGET ───────────────────────────────────
 
 function renderWidget() {
-  const wrap = el("div", { style: "position:fixed;bottom:80px;right:16px;pointer-events:all;z-index:2147483647;" });
+  const wrap = el("div", { style: "position:fixed;bottom:80px;right:16px;pointer-events:auto;z-index:2147483647;" });
 
   if (state.widgetCollapsed) {
     const btn = el("button", { style: `width:44px;height:44px;border-radius:50%;background:${state.accent};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;box-shadow:0 4px 14px ${state.accent}66;` });
@@ -258,7 +332,7 @@ function renderWidget() {
 // ── 3. IMPULSE BUFFER MODAL ───────────────────────────────────────
 
 function renderImpulseModal() {
-  const overlay = el("div", { style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;pointer-events:all;z-index:2147483647;font-family:'Segoe UI',-apple-system,sans-serif;" });
+  const overlay = el("div", { style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;pointer-events:auto;z-index:2147483647;font-family:'Segoe UI',-apple-system,sans-serif;" });
   const modal = el("div", { style: "background:#fff;border-radius:18px;padding:22px;width:280px;box-shadow:0 20px 60px rgba(0,0,0,0.3);" });
 
   if (state.impulsePhase === "counting") {
