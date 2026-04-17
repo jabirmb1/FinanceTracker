@@ -82,9 +82,9 @@ window.addEventListener("message", (e) => {
   if (type === "FT_REQUEST_ACCENT") {
     chrome.storage.local.get(["accentHex"], (r) => {
       e.source?.postMessage({
-          type: "FT_ACCENT_RESPONSE",
+        type: "FT_ACCENT_RESPONSE",
         accentHex: r.accentHex || "#6c63ff"
-        }, "*");
+      }, "*");
     });
   }
 
@@ -96,8 +96,8 @@ window.addEventListener("message", (e) => {
           categoryMap: null,
           currency: "£"
         }, "*");
-      return;
-    }
+        return;
+      }
 
       const data = JSON.parse(r.financeData);
       const now = new Date();
@@ -110,10 +110,10 @@ window.addEventListener("message", (e) => {
           categoryMap: null,
           currency: data.currency || "£"
         }, "*");
-      return;
-    }
+        return;
+      }
 
-    const categoryMap = {};
+      const categoryMap = {};
       (month.budgets || []).forEach(b => {
         categoryMap[b.category] = { budget: b.budget, spent: 0 };
       });
@@ -128,7 +128,7 @@ window.addEventListener("message", (e) => {
         categoryMap,
         currency: data.currency || "£"
       }, "*");
-  });
+    });
   }
 });
 
@@ -215,7 +215,7 @@ function detectAndNotify() {
   
   if (!total) return false;
   
-    cartDetected = true;
+  cartDetected = true;
   console.log(`[FinTrack] ✓ Cart detected: £${total}`);
   
   sendMessage({
