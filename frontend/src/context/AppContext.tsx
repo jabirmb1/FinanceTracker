@@ -1,4 +1,9 @@
-import React, { createContext, useState, useEffect, type ReactNode } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 // -------------------- Types --------------------
 export interface Budget {
@@ -23,156 +28,126 @@ export interface AppContextType {
   expenses: Expense[];
   budgets: Budget[];
   categories: string[];
-  addCategory: (name: string) => void;
-  addExpense: (description: string, amount: number | string, category: string) => void;
-  updateBudget: (category: string, newAmount: number | string) => void;
+  addExpense: (e: Expense) => void;
+  addCategory: (c: string) => void;
   prevMonth: () => void;
   nextMonth: () => void;
   goToCurrentMonth: () => void;
   currency: string;
   setCurrency: React.Dispatch<React.SetStateAction<string>>;
   formatMoney: (n: number) => string;
-  allData: Record<string, MonthData | Expense[] | Budget[]>;
 }
 
-const syncToExtension = (data: any) => {
-  if (typeof chrome !== "undefined" && chrome.storage?.local) {
-    chrome.storage.local.set({
-      financeData: JSON.stringify(data),
-    });
-  }
-};
-
-// -------------------- Context --------------------
-export const AppContext = createContext<AppContextType>({} as AppContextType);
-
-// -------------------- Defaults --------------------
-const DEFAULT_BUDGETS: Budget[] = [
-  { category: "Food", budget: 50 },
-  { category: "Subscription", budget: 80 },
-  { category: "Clothes", budget: 100 },
-  { category: "Savings", budget: 200 },
-];
-
-// -------------------- Helpers --------------------
-const getCurrentMonthKey = (): string => {
+// -------------------- helpers --------------------
+const getMonthKey = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
-const shiftMonth = (monthKey: string, delta: number): string => {
-  const [y, m] = monthKey.split("-").map(Number);
+const shiftMonth = (key: string, delta: number) => {
+  const [y, m] = key.split("-").map(Number);
   const d = new Date(y, m - 1 + delta);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 };
 
-const readAll = (): Record<string, any> => {
-  try {
-    const raw = localStorage.getItem("financeData");
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-};
-
-const writeAll = (data) => {
-  const serialized = JSON.stringify(data);
-
-  // React UI storage
-  localStorage.setItem("financeData", serialized);
-
-  // Extension storage (IMPORTANT FIX)
-  if (typeof chrome !== "undefined" && chrome.storage?.local) {
-    chrome.storage.local.set({
-      financeData: serialized,
+// -------------------- storage helpers --------------------
+const readStorage = (): Promise<any> =>
+  new Promise((resolve) => {
+    chrome.storage.local.get(["financeData"], (res) => {
+      try {
+        resolve(res.financeData ? JSON.parse(res.financeData) : {});
+      } catch {
+        resolve({});
+      }
     });
-  }
+  });
+
+const writeStorage = (data: any) => {
+  chrome.storage.local.set({
+    financeData: JSON.stringify(data),
+  });
 };
 
-// -------------------- Provider --------------------
-interface AppProviderProps {
-  children: ReactNode;
-}
+// -------------------- context --------------------
+export const AppContext = createContext<AppContextType>({} as AppContextType);
 
-export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
-  const currentKey = getCurrentMonthKey();
-  const allData = readAll();
+export const AppProvider = ({ children }: { children: ReactNode }) => {
+  const [monthKey, setMonthKey] = useState(getMonthKey());
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [budgets, setBudgets] = useState<Budget[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [currency, setCurrency] = useState("£");
 
-  const [currency, setCurrency] = useState(localStorage.getItem("currency") || "£");
+  // 🔥 LOAD + SYNC FROM EXTENSION
+  const load = async (key = monthKey) => {
+    const all = await readStorage();
 
-  useEffect(() => {
-    localStorage.setItem("currency", currency);
-  }, [currency]);
+    const month = all[key] || { expenses: [], budgets: [] };
 
-  const initialData: MonthData = allData[currentKey] || { expenses: [], budgets: DEFAULT_BUDGETS };
+    setExpenses(month.expenses);
+    setBudgets(month.budgets);
 
-  const [monthKey, setMonthKey] = useState(currentKey);
-  const [expenses, setExpenses] = useState<Expense[]>(initialData.expenses);
-  const [budgets, setBudgets] = useState<Budget[]>(initialData.budgets);
-
-  const savedCategories = allData["_categories"];
-  const [categories, setCategories] = useState<string[]>(
-    savedCategories || initialData.budgets.map((b) => b.category)
-  );
-
-  useEffect(() => {
-    const all = readAll();
-    all[monthKey] = { expenses, budgets };
-    all["_categories"] = categories;
-    writeAll(all);
-  }, [monthKey, expenses, budgets, categories]);
-
-  // -------------------- Month Navigation --------------------
-  const loadMonth = (key: string) => {
-    const all = readAll();
-    const monthData: MonthData = all[key] || { expenses: [], budgets: DEFAULT_BUDGETS };
-    setMonthKey(key);
-    setExpenses(monthData.expenses);
-    setBudgets(monthData.budgets);
+    setCategories(all["_categories"] || []);
   };
 
-  const prevMonth = () => loadMonth(shiftMonth(monthKey, -1));
-  const nextMonth = () => loadMonth(shiftMonth(monthKey, 1));
-  const goToCurrentMonth = () => loadMonth(getCurrentMonthKey());
+  useEffect(() => {
+    load();
+  }, [monthKey]);
 
-  // -------------------- Expense & Budget Management --------------------
-  const addExpense = (description: string, amount: number | string, category: string) => {
-    if (!description || !amount) return;
-    const newExpense: Expense = {
-      id: Date.now(),
-      description,
-      amount: Number(amount),
-      category,
+  // 🔥 LIVE SYNC FROM CONTENT SCRIPT
+  useEffect(() => {
+    const listener = (changes: any, area: string) => {
+      if (area !== "local") return;
+      if (!changes.financeData) return;
+
+      load(monthKey);
     };
-    setExpenses((prev) => [...prev, newExpense]);
+
+    chrome.storage.local.onChanged.addListener(listener);
+    return () =>
+      chrome.storage.local.onChanged.removeListener(listener);
+  }, [monthKey]);
+
+  // -------------------- ADD EXPENSE (FIXED) --------------------
+  const addExpense = async (expense: Expense) => {
+    const all = await readStorage();
+
+    const month = all[monthKey] || { expenses: [], budgets: [] };
+
+    const updated = {
+      ...all,
+      [monthKey]: {
+        ...month,
+        expenses: [...month.expenses, expense],
+      },
+    };
+
+    writeStorage(updated);
   };
 
-  const updateBudget = (category: string, newAmount: number | string) => {
-    setBudgets((prev) =>
-      prev.map((b) => (b.category === category ? { ...b, budget: Number(newAmount) } : b))
-    );
+  // -------------------- CATEGORY --------------------
+  const addCategory = async (c: string) => {
+    const all = await readStorage();
+
+    const cats = all["_categories"] || [];
+
+    if (cats.includes(c)) return;
+
+    const updated = {
+      ...all,
+      _categories: [...cats, c],
+    };
+
+    writeStorage(updated);
   };
 
-  const addCategory = (newCat: string) => {
-    const trimmed = newCat.trim();
-    if (!trimmed) return alert("Category name cannot be empty.");
+  // -------------------- MONTH NAV --------------------
+  const prevMonth = () => setMonthKey(shiftMonth(monthKey, -1));
+  const nextMonth = () => setMonthKey(shiftMonth(monthKey, 1));
+  const goToCurrentMonth = () => setMonthKey(getMonthKey());
 
-    const exists = categories.some((c) => c.toLowerCase() === trimmed.toLowerCase());
-    if (exists) return alert("This category already exists.");
-
-    const updatedCategories = [...categories, trimmed];
-    setCategories(updatedCategories);
-
-    const updatedBudgets = [...budgets, { category: trimmed, budget: 0 }];
-    setBudgets(updatedBudgets);
-
-    const all = readAll();
-    all[monthKey] = { expenses, budgets: updatedBudgets };
-    all["_categories"] = updatedCategories;
-    writeAll(all);
-  };
-
-  const formatMoney = (n: number) => `${currency}${Number(n || 0).toLocaleString()}`;
+  const formatMoney = (n: number) =>
+    `${currency}${Number(n || 0).toLocaleString()}`;
 
   return (
     <AppContext.Provider
@@ -181,16 +156,14 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         expenses,
         budgets,
         categories,
-        addCategory,
         addExpense,
-        updateBudget,
+        addCategory,
         prevMonth,
         nextMonth,
         goToCurrentMonth,
         currency,
         setCurrency,
         formatMoney,
-        allData: readAll(),
       }}
     >
       {children}
