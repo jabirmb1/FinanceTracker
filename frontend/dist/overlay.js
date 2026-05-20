@@ -1,5 +1,8 @@
 // ─────────────────────────────────────────────────────────────────
 // overlay.js  —  injected into shopping sites as an iframe
+//
+// This file handles the overlay UI that appears when a cart is detected
+// It communicates with content.js to get budget data and send purchase confirmations
 // ─────────────────────────────────────────────────────────────────
 
 // ── HELPERS ──────────────────────────────────────────────────────
@@ -64,6 +67,13 @@ let state = {
   impulseCount: 5,
   impulseTimer: null,
   impulseTotal: 0,
+  // Order confirmation tracking
+  orderTotal: 0,
+  orderMerchant: "",
+  orderCartTotal: 0,
+  categoryPickerVisible: false,
+  selectedCategory: null,
+  expenseAdded: false,
 };
 
 // ── ACCENT SYNC ──────────────────────────────────────────────────
@@ -90,6 +100,7 @@ function render() {
   if (state.bannerVisible) root.appendChild(renderBanner());
   // root.appendChild(renderWidget());
   if (state.impulsePhase !== "idle") root.appendChild(renderImpulseModal());
+  if (state.categoryPickerVisible) root.appendChild(renderCategoryPicker());
 }
 
 // ── 1. CART INTERCEPT BANNER ──────────────────────────────────────
@@ -407,7 +418,7 @@ function renderImpulseModal() {
     emoji.textContent = "🛍️";
     const title = el("p", { style: "margin:0 0 4px;font-size:0.92rem;font-weight:800;color:#b94040;text-align:center;" });
     title.textContent = "Purchase logged";
-    const sub = el("p", { style: "margin:0 0 14px;font-size:0.7rem;color:#8a96a3;text-align:center;" });
+    const sub = el("p", { style: "margin:0 0 14px;font-size:0.7rem;color:#666;text-align:center;" });
     sub.textContent = "Expense added to your tracker.";
     const closeBtn = el("button", { style: "width:100%;background:#f7f8fa;color:#555;border:1px solid #e8ecf0;border-radius:10px;padding:9px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;" });
     closeBtn.textContent = "Close";
@@ -415,6 +426,96 @@ function renderImpulseModal() {
     modal.append(emoji, title, sub, closeBtn);
   }
 
+  overlay.appendChild(modal);
+  return overlay;
+}
+
+// ── 4. CATEGORY PICKER MODAL (Order Confirmation) ─────────────────
+
+function renderCategoryPicker() {
+  const overlay = el("div", {
+    style: "position:fixed;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;pointer-events:auto;z-index:2147483647;font-family:'Segoe UI',-apple-system,sans-serif;"
+  });
+
+  const modal = el("div", {
+    style: "background:#fff;border-radius:14px;padding:12px 14px;width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.15);border:1px solid #e8ecf0;"
+  });
+
+  if (state.expenseAdded) {
+    const emoji = el("div", { style: "font-size:2rem;text-align:center;margin-bottom:8px;" });
+    emoji.textContent = "✅";
+    const title = el("p", { style: "margin:0 0 4px;font-size:0.9rem;font-weight:700;color:#2d6a4f;text-align:center;" });
+    title.textContent = "Added to Tracker!";
+    const sub = el("p", { style: "margin:0;font-size:0.7rem;color:#666;text-align:center;" });
+    sub.textContent = `${state.currency}${state.orderTotal.toFixed(2)} → ${state.selectedCategory}`;
+    modal.append(emoji, title, sub);
+    overlay.appendChild(modal);
+    return overlay;
+  }
+
+  const header = el("div", { style: "display:flex;align-items:center;gap:8px;margin-bottom:12px;" });
+  const icon = el("span", { style: "font-size:1.2rem;" });
+  icon.textContent = "💰";
+  const headerText = el("p", { style: "margin:0;font-size:0.85rem;font-weight:700;color:#111;" });
+  headerText.textContent = "Purchase Detected!";
+  header.append(icon, headerText);
+
+  const details = el("div", { style: "background:#f7f8fa;border-radius:10px;padding:10px;margin-bottom:12px;" });
+  const merchantRow = el("div", { style: "display:flex;justify-content:space-between;margin-bottom:4px;" });
+  const merchantLabel = el("span", { style: "font-size:0.65rem;color:#666;" });
+  merchantLabel.textContent = "Merchant:";
+  const merchantVal = el("span", { style: "font-size:0.65rem;font-weight:600;color:#333;text-transform:capitalize;" });
+  merchantVal.textContent = state.orderMerchant;
+  merchantRow.append(merchantLabel, merchantVal);
+  const totalRow = el("div", { style: "display:flex;justify-content:space-between;" });
+  const totalLabel = el("span", { style: "font-size:0.75rem;font-weight:600;color:#111;" });
+  totalLabel.textContent = "Order Total:";
+  const totalVal = el("span", { style: "font-size:0.85rem;font-weight:800;color:#111;" });
+  totalVal.textContent = `${state.currency}${state.orderTotal.toFixed(2)}`;
+  totalRow.append(totalLabel, totalVal);
+  details.append(merchantRow, totalRow);
+
+  if (state.orderCartTotal && Math.abs(state.orderCartTotal - state.orderTotal) > 0.01) {
+    const diffRow = el("div", { style: "display:flex;justify-content:space-between;margin-top:4px;padding-top:4px;border-top:1px dashed #ddd;" });
+    const diffLabel = el("span", { style: "font-size:0.6rem;color:#888;" });
+    diffLabel.textContent = "Cart was:";
+    const diffVal = el("span", { style: "font-size:0.6rem;color:#888;" });
+    diffVal.textContent = `${state.currency}${state.orderCartTotal.toFixed(2)}`;
+    diffRow.append(diffLabel, diffVal);
+    details.appendChild(diffRow);
+  }
+
+  const catLabel = el("p", { style: "margin:0 0 8px;font-size:0.65rem;color:#666;text-transform:uppercase;letter-spacing:0.5px;" });
+  catLabel.textContent = "Select Category:";
+
+  const catGrid = el("div", { style: "display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px;" });
+  const categories = state.categoryData ? Object.keys(state.categoryData) : [];
+  console.log("[Overlay] Categories to render:", categories);
+
+  categories.forEach(cat => {
+    const isSelected = state.selectedCategory === cat;
+    const btn = el("button", {
+      style: `background:${isSelected ? state.accent : '#f7f8fa'};color:${isSelected ? '#fff' : '#333'};border:1px solid ${isSelected ? state.accent : '#e8ecf0'};border-radius:8px;padding:8px 6px;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s ease;`
+    });
+    btn.textContent = cat;
+    btn.onclick = () => { state.selectedCategory = cat; render(); };
+    catGrid.appendChild(btn);
+  });
+
+  const btnRow = el("div", { style: "display:flex;gap:8px;" });
+  const skipBtn = el("button", { style: "flex:1;background:none;border:1px solid #e8ecf0;border-radius:8px;padding:8px;font-size:0.7rem;color:#888;cursor:pointer;font-family:inherit;" });
+  skipBtn.textContent = "Skip";
+  skipBtn.onclick = () => { state.categoryPickerVisible = false; render(); };
+  const addBtn = el("button", { style: `flex:2;background:${state.selectedCategory ? state.accent : '#ccc'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.75rem;font-weight:700;cursor:${state.selectedCategory ? 'pointer' : 'not-allowed'};font-family:inherit;` });
+  addBtn.textContent = "Add to Tracker";
+  addBtn.disabled = !state.selectedCategory;
+  addBtn.onclick = () => {
+    if (!state.selectedCategory) return;
+    window.parent.postMessage({ type: "FT_ADD_EXPENSE", amount: state.orderTotal, category: state.selectedCategory, merchant: state.orderMerchant }, "*");
+  };
+  btnRow.append(skipBtn, addBtn);
+
+  modal.append(header, details, catLabel, catGrid, btnRow);
   overlay.appendChild(modal);
   return overlay;
 }
@@ -474,6 +575,35 @@ window.addEventListener("message", (event) => {
         }, 1000);
       }
     });
+  }
+
+  // Show category picker when order confirmation detected
+  if (type === "FT_SHOW_CATEGORY_PICKER") {
+    state.orderTotal = total || 0;
+    state.orderMerchant = event.data.merchant || "online store";
+    state.orderCartTotal = event.data.cartTotal || 0;
+    state.categoryPickerVisible = true;
+    state.selectedCategory = null;
+    state.expenseAdded = false;
+
+    // Fetch budget data to get user's categories
+    getBudgetData((catData, currency) => {
+      console.log("[Overlay] Received categoryData:", catData);
+      state.categoryData = catData;
+      state.currency = currency;
+      render();
+    });
+  }
+
+  // Expense was successfully added
+  if (type === "FT_EXPENSE_ADDED") {
+    state.expenseAdded = true;
+    render();
+    // Auto-close after 3 seconds
+    setTimeout(() => {
+      state.categoryPickerVisible = false;
+      render();
+    }, 3000);
   }
 });
 
