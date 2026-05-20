@@ -35,6 +35,14 @@ export interface AppContextType {
   allData: Record<string, MonthData | Expense[] | Budget[]>;
 }
 
+const syncToExtension = (data: any) => {
+  if (typeof chrome !== "undefined" && chrome.storage?.local) {
+    chrome.storage.local.set({
+      financeData: JSON.stringify(data),
+    });
+  }
+};
+
 // -------------------- Context --------------------
 export const AppContext = createContext<AppContextType>({} as AppContextType);
 
@@ -67,8 +75,18 @@ const readAll = (): Record<string, any> => {
   }
 };
 
-const writeAll = (data: Record<string, any>) => {
-  localStorage.setItem("financeData", JSON.stringify(data));
+const writeAll = (data) => {
+  const serialized = JSON.stringify(data);
+
+  // React UI storage
+  localStorage.setItem("financeData", serialized);
+
+  // Extension storage (IMPORTANT FIX)
+  if (typeof chrome !== "undefined" && chrome.storage?.local) {
+    chrome.storage.local.set({
+      financeData: serialized,
+    });
+  }
 };
 
 // -------------------- Provider --------------------
