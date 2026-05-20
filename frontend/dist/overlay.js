@@ -5,6 +5,10 @@
 // It communicates with content.js to get budget data and send purchase confirmations
 // ─────────────────────────────────────────────────────────────────
 
+
+let lastValidCategoryData = null;
+
+
 // ── HELPERS ──────────────────────────────────────────────────────
 
 // Requests budget data from content.js via postMessage
@@ -15,14 +19,24 @@ function getBudgetData(callback) {
   function onResponse(event) {
     if (event.data?.type === "FT_BUDGET_RESPONSE") {
       window.removeEventListener("message", onResponse);
-      callback(event.data.categoryMap || null, event.data.currency || "£");
+
+      const data = event.data.categoryMap;
+
+      // 🚨 IMPORTANT: ignore null / broken payloads
+      if (data && typeof data === "object") {
+        callback(data, event.data.currency || "£");
+      } else {
+        // fallback to last good data instead of wiping UI
+        callback(lastValidCategoryData, event.data.currency || "£");
+      }
     }
   }
+
   window.addEventListener("message", onResponse);
 
   setTimeout(() => {
     window.removeEventListener("message", onResponse);
-    callback(null, "£");
+    callback(lastValidCategoryData, "£");
   }, 3000);
 }
 
@@ -289,7 +303,12 @@ function renderWidget() {
       render();
       getBudgetData((catData, currency) => {
         if (!catData) { state.widgetVerdict = null; render(); return; }
-        state.categoryData = catData;
+        
+        if (catData && Object.keys(catData).length > 0) {
+          state.categoryData = catData;
+          lastValidCategoryData = catData; 
+        }
+
         state.currency = currency;
         const catKey = state.cartCategory || guessCategory(window.location.hostname);
         const cat = catData[catKey] || Object.values(catData)[0];
@@ -488,19 +507,19 @@ function renderCategoryPicker() {
   const catLabel = el("p", { style: "margin:0 0 8px;font-size:0.65rem;color:#666;text-transform:uppercase;letter-spacing:0.5px;" });
   catLabel.textContent = "Select Category:";
 
-  const catGrid = el("div", { style: "display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px;" });
   const categories = state.categoryData ? Object.keys(state.categoryData) : [];
-  console.log("[Overlay] Categories to render:", categories);
-
+  const catGrid = document.createElement("select");
+  catGrid.style = "width:100%;padding:8px;border:1px solid #e8ecf0;border-radius:8px;font-size:0.75rem;font-family:inherit;background:#f7f8fa;margin-bottom:12px;";
+  const placeholder = document.createElement("option");
+  placeholder.value = ""; placeholder.textContent = "Choose a category..."; placeholder.disabled = true; placeholder.selected = !state.selectedCategory;
+  catGrid.appendChild(placeholder);
   categories.forEach(cat => {
-    const isSelected = state.selectedCategory === cat;
-    const btn = el("button", {
-      style: `background:${isSelected ? state.accent : '#f7f8fa'};color:${isSelected ? '#fff' : '#333'};border:1px solid ${isSelected ? state.accent : '#e8ecf0'};border-radius:8px;padding:8px 6px;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s ease;`
-    });
-    btn.textContent = cat;
-    btn.onclick = () => { state.selectedCategory = cat; render(); };
-    catGrid.appendChild(btn);
+    const opt = document.createElement("option");
+    opt.value = cat; opt.textContent = cat;
+    if (state.selectedCategory === cat) opt.selected = true;
+    catGrid.appendChild(opt);
   });
+  catGrid.onchange = () => { state.selectedCategory = catGrid.value; };
 
   const btnRow = el("div", { style: "display:flex;gap:8px;" });
   const skipBtn = el("button", { style: "flex:1;background:none;border:1px solid #e8ecf0;border-radius:8px;padding:8px;font-size:0.7rem;color:#888;cursor:pointer;font-family:inherit;" });
@@ -509,10 +528,19 @@ function renderCategoryPicker() {
   const addBtn = el("button", { style: `flex:2;background:${state.selectedCategory ? state.accent : '#ccc'};color:#fff;border:none;border-radius:8px;padding:8px;font-size:0.75rem;font-weight:700;cursor:${state.selectedCategory ? 'pointer' : 'not-allowed'};font-family:inherit;` });
   addBtn.textContent = "Add to Tracker";
   addBtn.disabled = !state.selectedCategory;
+  
+
   addBtn.onclick = () => {
-    if (!state.selectedCategory) return;
-    window.parent.postMessage({ type: "FT_ADD_EXPENSE", amount: state.orderTotal, category: state.selectedCategory, merchant: state.orderMerchant }, "*");
+  if (!state.selectedCategory) return;
+    window.parent.postMessage({
+      type: "FT_CONFIRM_CATEGORY",
+      category: state.selectedCategory,
+      amount: state.orderTotal,
+      merchant: state.orderMerchant,
+    }, "*");
   };
+
+
   btnRow.append(skipBtn, addBtn);
 
   modal.append(header, details, catLabel, catGrid, btnRow);
@@ -539,7 +567,11 @@ window.addEventListener("message", (event) => {
     state.bannerVisible = true;
     state.bannerAnimIn = false;
     getBudgetData((catData, currency) => {
-      state.categoryData = catData;
+      if (catData && Object.keys(catData).length > 0) {
+        state.categoryData = catData;
+        lastValidCategoryData = catData;
+      }
+
       state.currency = currency;
       render();
       setTimeout(() => { state.bannerAnimIn = true; render(); }, 50);
@@ -556,7 +588,10 @@ window.addEventListener("message", (event) => {
 
   if (type === "FT_CHECKOUT_ATTEMPT") {
     getBudgetData((catData, currency) => {
-      state.categoryData = catData;
+      if (catData && Object.keys(catData).length > 0) {
+        state.categoryData = catData;
+        lastValidCategoryData = catData;
+      }
       state.currency = currency;
       const cat = catData?.[state.cartCategory];
       if (cat && cat.spent >= cat.budget) {
@@ -586,14 +621,21 @@ window.addEventListener("message", (event) => {
     state.selectedCategory = null;
     state.expenseAdded = false;
 
-    // Fetch budget data to get user's categories
-    getBudgetData((catData, currency) => {
-      console.log("[Overlay] Received categoryData:", catData);
-      state.categoryData = catData;
-      state.currency = currency;
+    if (lastValidCategoryData) {
+      state.categoryData = lastValidCategoryData;
       render();
-    });
+    } else {
+      getBudgetData((catData, currency) => {
+        if (catData && Object.keys(catData).length > 0) {
+          state.categoryData = catData;
+          lastValidCategoryData = catData;
+        }
+        state.currency = currency;
+        render();
+      });
+    }
   }
+
 
   // Expense was successfully added
   if (type === "FT_EXPENSE_ADDED") {
@@ -610,7 +652,10 @@ window.addEventListener("message", (event) => {
 // ── INIT ──────────────────────────────────────────────────────────
 
 getBudgetData((catData, currency) => {
+  if (catData && Object.keys(catData).length > 0) {
   state.categoryData = catData;
+  lastValidCategoryData = catData;
+}
   state.currency = currency;
   render();
 });

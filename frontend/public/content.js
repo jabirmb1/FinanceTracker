@@ -1,16 +1,17 @@
-
 // ────────────────────────────────────────────────────────────────
-// FinTrack content.js - STABLE PRODUCTION (FIXED CART ENGINE)
+// FinTrack content.js - STABLE PRODUCTION (FINAL FIXED FLOW)
 // ────────────────────────────────────────────────────────────────
 
 let iframe = null;
 let iframeReady = false;
 let dismissedUntil = 0;
-let cartDetected = false;
 
+let cartDetected = false;
 let trackedCartTotal = 0;
-let trackedMerchant = "";
 let confirmationDetected = false;
+
+// ── STATE MACHINE ───────────────────────────────────────────────
+let pendingOrder = null;
 
 const messageQueue = [];
 
@@ -22,13 +23,12 @@ let budgetRequestInFlight = false;
 let lastBudgetRequestId = 0;
 
 // ────────────────────────────────────────────────────────────────
-// STORAGE LAYER (UNCHANGED)
+// STORAGE
 // ────────────────────────────────────────────────────────────────
 
 function getFinanceData(callback) {
   chrome.storage.local.get(["financeData"], (res) => {
     if (!res.financeData) return callback(null);
-
     try {
       callback(JSON.parse(res.financeData));
     } catch (e) {
@@ -46,23 +46,7 @@ function setFinanceData(data, cb) {
 }
 
 // ────────────────────────────────────────────────────────────────
-// BRIDGE (UNCHANGED)
-// ────────────────────────────────────────────────────────────────
-
-window.addEventListener("message", (e) => {
-  const { type, data } = e.data || {};
-
-  if (type === "FT_SYNC_DATA") setFinanceData(data);
-
-  if (type === "FT_GET_DATA") {
-    getFinanceData((res) => {
-      e.source?.postMessage({ type: "FT_DATA_RESPONSE", data: res }, "*");
-    });
-  }
-});
-
-// ────────────────────────────────────────────────────────────────
-// IFRAME SYSTEM (UNCHANGED)
+// IFRAME SYSTEM
 // ────────────────────────────────────────────────────────────────
 
 function createIframe() {
@@ -87,7 +71,9 @@ function createIframe() {
 
   iframe.onload = () => {
     iframeReady = true;
-    messageQueue.forEach((m) => iframe.contentWindow.postMessage(m, "*"));
+    messageQueue.forEach((m) =>
+      iframe.contentWindow.postMessage(m, "*")
+    );
     messageQueue.length = 0;
   };
 
@@ -99,17 +85,21 @@ function sendMessage(msg) {
   const fr = createIframe();
   if (!fr) return;
 
-  if (iframeReady) fr.contentWindow.postMessage(msg, "*");
-  else messageQueue.push(msg);
+  if (iframeReady && fr.contentWindow) {
+    fr.contentWindow.postMessage(msg, "*");
+  } else {
+    messageQueue.push(msg);
+  }
 }
 
 // ────────────────────────────────────────────────────────────────
-// SAFE BUDGET RESPONSE (UNCHANGED)
+// BUDGET
 // ────────────────────────────────────────────────────────────────
 
-function processBudgetData(data, iframe, requestId) {
+function processBudgetData(data, requestId) {
   const now = new Date();
-  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const monthKey =
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
   const month = data?.[monthKey];
   if (!month) return;
@@ -130,24 +120,22 @@ function processBudgetData(data, iframe, requestId) {
     if (!categoryMap[c]) categoryMap[c] = { budget: 0, spent: 0 };
   });
 
-  iframe?.contentWindow?.postMessage(
-    {
-      type: "FT_BUDGET_RESPONSE",
-      categoryMap,
-      currency: data?.currency || "£",
-      requestId,
-    },
-    "*"
-  );
+  sendMessage({
+    type: "FT_BUDGET_RESPONSE",
+    categoryMap,
+    currency: data?.currency || "£",
+    requestId,
+  });
 }
 
 // ────────────────────────────────────────────────────────────────
-// MESSAGE HANDLER (UNCHANGED)
+// MESSAGE HANDLER
 // ────────────────────────────────────────────────────────────────
 
 window.addEventListener("message", (e) => {
   const { type } = e.data || {};
 
+  // ── dismiss overlay
   if (type === "FT_DISMISS_OVERLAY") {
     dismissedUntil = Date.now() + 10000;
     iframe?.remove();
@@ -155,6 +143,7 @@ window.addEventListener("message", (e) => {
     iframeReady = false;
   }
 
+  // ── accent
   if (type === "FT_REQUEST_ACCENT") {
     chrome.storage.local.get(["accentHex"], (r) => {
       e.source?.postMessage(
@@ -164,6 +153,7 @@ window.addEventListener("message", (e) => {
     });
   }
 
+  // ── budget
   if (type === "FT_REQUEST_BUDGET") {
     if (budgetRequestInFlight) return;
 
@@ -173,10 +163,44 @@ window.addEventListener("message", (e) => {
     getFinanceData((data) => {
       budgetRequestInFlight = false;
       if (!data) return;
-      processBudgetData(data, iframe, requestId);
+      processBudgetData(data, requestId);
     });
   }
 
+  // ────────────────────────────────────────────────
+  // ✅ CATEGORY SELECT (FIXED FLOW)
+  // ────────────────────────────────────────────────
+  if (type === "FT_CONFIRM_CATEGORY") {
+    const { category, amount, merchant } = e.data;
+    if (!category || !amount) return;
+
+    getFinanceData((data) => {
+      if (!data) data = {};
+
+      const now = new Date();
+      const monthKey =
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+      if (!data[monthKey]) {
+        data[monthKey] = { expenses: [], budgets: [] };
+      }
+
+      data[monthKey].expenses.push({
+        id: Date.now(),
+        description: `Purchase from ${merchant || "store"}`,
+        amount: Number(amount),
+        category,
+      });
+
+      setFinanceData(data, () => {
+        if (iframe?.contentWindow) {
+          iframe.contentWindow.postMessage({ type: "FT_EXPENSE_ADDED", success: true }, "*");
+        }
+      });
+    });
+  }
+
+  // ── fallback add expense
   if (type === "FT_ADD_EXPENSE") {
     const { amount, category, merchant } = e.data;
     if (!amount || !category) return;
@@ -185,7 +209,8 @@ window.addEventListener("message", (e) => {
       if (!data) data = {};
 
       const now = new Date();
-      const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+      const monthKey =
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
 
       if (!data[monthKey]) data[monthKey] = { expenses: [], budgets: [] };
 
@@ -197,17 +222,16 @@ window.addEventListener("message", (e) => {
       });
 
       setFinanceData(data);
-
-      iframe?.contentWindow?.postMessage(
-        { type: "FT_EXPENSE_ADDED", success: true },
-        "*"
-      );
+      // Reply directly to the iframe — bypasses dismissedUntil guard
+      if (iframe?.contentWindow) {
+          iframe.contentWindow.postMessage({ type: "FT_EXPENSE_ADDED", success: true }, "*");
+      }
     });
   }
 });
 
 // ────────────────────────────────────────────────────────────────
-// ✅ FIXED CART ENGINE (THIS IS THE IMPORTANT PART)
+// DETECTION
 // ────────────────────────────────────────────────────────────────
 
 function isCartPage() {
@@ -256,57 +280,34 @@ function getMerchantName() {
 }
 
 // ────────────────────────────────────────────────────────────────
-// 🔥 FIXED CART TOTAL DETECTOR (REPLACES YOUR BROKEN VERSION)
+// CART TOTAL
 // ────────────────────────────────────────────────────────────────
 
-function parsePrice(text) {
-  if (!text) return 0;
-  const cleaned = text.replace(/[^\d.,]/g, "").replace(/,/g, "");
-  const val = parseFloat(cleaned);
-  return isNaN(val) ? 0 : val;
-}
-
 function findCartTotal() {
-  // 1. HIGH PRIORITY: known “total” elements
-  const selectors = [
-    "[data-testid*='total']",
-    ".order-total",
-    ".cart-total",
-    ".subtotal",
-    "[class*='subtotal']",
-    "[class*='total']"
-  ];
-
-  for (const sel of selectors) {
-    const el = document.querySelector(sel);
-    if (el?.innerText) {
-      const v = parsePrice(el.innerText);
-      if (v > 0) return v;
-    }
-  }
-
-  // 2. MEDIUM: scan only visible elements (NOT entire DOM like before)
-  const nodes = document.querySelectorAll("span, div");
-
+  const els = document.querySelectorAll("span, div");
   let best = 0;
 
-  for (const el of nodes) {
+  for (const el of els) {
     const text = el.innerText;
-    if (!text || text.length > 40) continue;
+    if (!text || text.length > 60) continue;
 
-    const lower = text.toLowerCase();
+    const match = text.match(/[£$€]\s*(\d+(\.\d{2})?)/);
+    if (!match) continue;
 
-    if (!(lower.includes("total") || lower.includes("subtotal"))) continue;
+    const value = parseFloat(match[1]);
 
-    const value = parsePrice(text);
-    if (value > best) best = value;
+    if (text.toLowerCase().includes("total")) {
+      return value;
+    }
+
+    best = Math.max(best, value);
   }
 
   return best;
 }
 
 // ────────────────────────────────────────────────────────────────
-// DETECTION
+// FLOW
 // ────────────────────────────────────────────────────────────────
 
 function detectAndNotify() {
@@ -328,6 +329,7 @@ function detectAndNotify() {
   return true;
 }
 
+// 🔥 FIXED: NO async/await, just state
 function detectAndTrackOrder() {
   if (confirmationDetected || !isConfirmationPage()) return false;
 
@@ -336,18 +338,23 @@ function detectAndTrackOrder() {
 
   confirmationDetected = true;
 
+  pendingOrder = {
+    amount: total,
+    merchant: getMerchantName(),
+  };
+
   sendMessage({
     type: "FT_SHOW_CATEGORY_PICKER",
     total,
     cartTotal: trackedCartTotal,
-    merchant: getMerchantName(),
+    merchant: pendingOrder.merchant,
   });
 
   return true;
 }
 
 // ────────────────────────────────────────────────────────────────
-// INIT (UNCHANGED)
+// INIT
 // ────────────────────────────────────────────────────────────────
 
 function startDetection() {
@@ -356,8 +363,8 @@ function startDetection() {
   const run = () => {
     if (attempts++ > 10) return;
 
-    if (detectAndNotify()) return;
-    if (detectAndTrackOrder()) return;
+    detectAndNotify();
+    detectAndTrackOrder();
 
     setTimeout(run, attempts < 3 ? 500 : 1500);
   };
@@ -381,8 +388,9 @@ setInterval(() => {
     lastUrl = location.href;
     cartDetected = false;
     confirmationDetected = false;
+    pendingOrder = null;
     setTimeout(startDetection, 500);
   }
 }, 1000);
 
-console.log("[FinTrack] Loaded FIXED");
+console.log("[FinTrack] Loaded FIXED FLOW");
